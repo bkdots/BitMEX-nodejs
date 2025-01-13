@@ -15,6 +15,9 @@ const descriptionEnumRegexps = [
     /Options: ((["'`])\w+\2(?:,\s*\2\w+\2)*)/
 ];
 
+const cleanPathParameters = (path: string) =>
+    path.replace(/\{[^}]+\}/g, '').replace(/\/$/, '');
+
 export class SwaggerParser {
 
     private pathesMap = new Map<string, string[]>();
@@ -67,6 +70,14 @@ export class SwaggerParser {
                 key = `${title}Query`;
                 opts = 'qs';
                 arg = `${CONTAINER}.${key}`;
+            } else if (p.in === 'path') {
+                key = `${cleanPathParameters(title)}`;
+                opts = 'path';
+                arg = `${CONTAINER}.${key}`;
+            } else if (p.in === 'body') {
+                key = `${title}Body`;
+                opts = 'body';
+                arg = `${CONTAINER}.${key}`;
             } else {
                 throw new Error(`unknown parameter: ${ p.in }`);
             }
@@ -103,7 +114,11 @@ export class SwaggerParser {
         }
 
         arg = arg ? `${ opts }: ${ arg }${ (argRequried ? '' : ' = {}') }` : '';
-        opts = `{${ opts }}`;
+        if (opts == 'path') {
+            opts = `{}`;
+        } else {
+            opts = `{${ opts }}`;
+        }
         return [arg, opts];
     }
 
@@ -172,6 +187,8 @@ export class SwaggerParser {
                 method = (<string>method).toUpperCase();
                 const desc = ((def.summary || '') + (def.description || '')).trim();
 
+                const replacedPath = path.replace(/\{([^}]+)\}/g, '${path.$1}');
+
                 const arr = this.pathesMap.get(type) || [];
                 arr.push('');
                 arr.push(`/**`);
@@ -179,7 +196,7 @@ export class SwaggerParser {
                 commentSeperator(desc).forEach(line => arr.push(line));
                 arr.push(` */`);
                 arr.push(`${name}: async (${arg}) => `);
-                arr.push(`  this.request<${responseType}>('${method}', '${path}', ${opts}${authorizedArg}),`);
+                arr.push(`  this.request<${responseType}>('${method}', \`${replacedPath}\`, ${opts}${authorizedArg}),`);
                 this.pathesMap.set(type, arr);
             }
         }
