@@ -31,7 +31,12 @@ export class SwaggerParser {
             if (status !== '200') { continue; }
             switch (res.schema.type) {
                 case 'array':
-                    responseType = CONTAINER + '.' + normalizeDefinition(res.schema.items.$ref) + '[]';
+                    const normalized = normalizeDefinition(res.schema.$ref || '');
+                    if (!normalized || normalized === 'any') {
+                        responseType = 'any';
+                    } else {
+                        responseType = CONTAINER + '.' + normalized;
+                    }
                     break;
                 case 'object':
                     if (res.schema.properties) {
@@ -59,7 +64,10 @@ export class SwaggerParser {
         let arg = '';
         let opts = '';
         let argRequried = false;
-        const title = eTitleCase(path);
+        let multipleArg = [];
+        let finalArg = '';
+        let finalOpts = '';
+        const title = cleanPathParameters(eTitleCase(path));
         for (const p of parameters) {
             let key: string;
             if (p.in === 'formData') {
@@ -71,11 +79,11 @@ export class SwaggerParser {
                 opts = 'qs';
                 arg = `${CONTAINER}.${key}`;
             } else if (p.in === 'path') {
-                key = `${cleanPathParameters(title)}`;
+                key = `${title}${titleCase(method)}`;
                 opts = 'path';
                 arg = `${CONTAINER}.${key}`;
             } else if (p.in === 'body') {
-                key = `${title}Body`;
+                key = `${title}${titleCase(method)}`;
                 opts = 'body';
                 arg = `${CONTAINER}.${key}`;
             } else {
@@ -111,15 +119,29 @@ export class SwaggerParser {
 
             pArray.push(`${p.name}${required ? '' : '?'}: ${type};${comment}`);
             this.parametersMap.set(key, pArray);
+
+            if (p.in != 'formData' && p.in != 'query') {
+                 multipleArg.push(arg ? `${ opts }: ${ arg }${ (argRequried ? '' : ' = {}') }` : '');
+                if (opts == 'path') {
+                    finalOpts += '';
+                } else {
+                    finalOpts += `${ opts }`;
+                }
+            } else {
+                finalArg = arg ? `${ opts }: ${ arg }${ (argRequried ? '' : ' = {}') }` : '';
+                if (opts == 'path') {
+                    finalOpts = '';
+                } else {
+                    finalOpts = `${ opts }`;
+                }
+            }
         }
 
-        arg = arg ? `${ opts }: ${ arg }${ (argRequried ? '' : ' = {}') }` : '';
-        if (opts == 'path') {
-            opts = `{}`;
-        } else {
-            opts = `{${ opts }}`;
+        if (multipleArg.length > 0) {
+            finalArg = multipleArg.join(", ")
         }
-        return [arg, opts];
+
+        return [finalArg, `{ ${finalOpts} }`];
     }
 
     constructor(readonly data: any) {

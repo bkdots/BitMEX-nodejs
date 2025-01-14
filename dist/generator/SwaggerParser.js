@@ -13,6 +13,7 @@ const descriptionEnumRegexps = [
     /Valid options: (.+?)\./,
     /Options: ((["'`])\w+\2(?:,\s*\2\w+\2)*)/
 ];
+const cleanPathParameters = (path) => path.replace(/\{[^}]+\}/g, '').replace(/\/$/, '');
 class SwaggerParser {
     constructor(data) {
         this.data = data;
@@ -78,6 +79,7 @@ class SwaggerParser {
                 const authorizedArg = authorized ? ', true' : '';
                 method = method.toUpperCase();
                 const desc = ((def.summary || '') + (def.description || '')).trim();
+                const replacedPath = path.replace(/\{([^}]+)\}/g, '${path.$1}');
                 const arr = this.pathesMap.get(type) || [];
                 arr.push('');
                 arr.push(`/**`);
@@ -87,7 +89,7 @@ class SwaggerParser {
                 commentSeperator(desc).forEach(line => arr.push(line));
                 arr.push(` */`);
                 arr.push(`${name}: async (${arg}) => `);
-                arr.push(`  this.request<${responseType}>('${method}', '${path}', ${opts}${authorizedArg}),`);
+                arr.push(`  this.request<${responseType}>('${method}', \`${replacedPath}\`, ${opts}${authorizedArg}),`);
                 this.pathesMap.set(type, arr);
             }
         }
@@ -100,7 +102,13 @@ class SwaggerParser {
             }
             switch (res.schema.type) {
                 case 'array':
-                    responseType = exports.CONTAINER + '.' + normalizeDefinition(res.schema.items.$ref) + '[]';
+                    const normalized = normalizeDefinition(res.schema.$ref || '');
+                    if (!normalized || normalized === 'any') {
+                        responseType = 'any';
+                    }
+                    else {
+                        responseType = exports.CONTAINER + '.' + normalized;
+                    }
                     break;
                 case 'object':
                     if (res.schema.properties) {
@@ -127,7 +135,10 @@ class SwaggerParser {
         let arg = '';
         let opts = '';
         let argRequried = false;
-        const title = eTitleCase(path);
+        let multipleArg = [];
+        let finalArg = '';
+        let finalOpts = '';
+        const title = cleanPathParameters(eTitleCase(path));
         for (const p of parameters) {
             let key;
             if (p.in === 'formData') {
@@ -138,6 +149,16 @@ class SwaggerParser {
             else if (p.in === 'query') {
                 key = `${title}Query`;
                 opts = 'qs';
+                arg = `${exports.CONTAINER}.${key}`;
+            }
+            else if (p.in === 'path') {
+                key = `${title}${titleCase(method)}`;
+                opts = 'path';
+                arg = `${exports.CONTAINER}.${key}`;
+            }
+            else if (p.in === 'body') {
+                key = `${title}${titleCase(method)}`;
+                opts = 'body';
                 arg = `${exports.CONTAINER}.${key}`;
             }
             else {
@@ -165,10 +186,29 @@ class SwaggerParser {
             }
             pArray.push(`${p.name}${required ? '' : '?'}: ${type};${comment}`);
             this.parametersMap.set(key, pArray);
+            if (p.in != 'formData' && p.in != 'query') {
+                multipleArg.push(arg ? `${opts}: ${arg}${(argRequried ? '' : ' = {}')}` : '');
+                if (opts == 'path') {
+                    finalOpts += '';
+                }
+                else {
+                    finalOpts += `${opts}`;
+                }
+            }
+            else {
+                finalArg = arg ? `${opts}: ${arg}${(argRequried ? '' : ' = {}')}` : '';
+                if (opts == 'path') {
+                    finalOpts = '';
+                }
+                else {
+                    finalOpts = `${opts}`;
+                }
+            }
         }
-        arg = arg ? `${opts}: ${arg}${(argRequried ? '' : ' = {}')}` : '';
-        opts = `{${opts}}`;
-        return [arg, opts];
+        if (multipleArg.length > 0) {
+            finalArg = multipleArg.join(", ");
+        }
+        return [finalArg, `{ ${finalOpts} }`];
     }
     createInterfaces() {
         const interfacesBody = [];

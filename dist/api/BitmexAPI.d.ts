@@ -7,25 +7,29 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         /**
          * Get site announcements.
          */
-        get: (qs?: BITMEX.AnnouncementQuery) => Promise<BITMEX.Announcement[]>;
+        get: (qs?: BITMEX.AnnouncementQuery) => Promise<any>;
         /**
          * @Authorized
          * Get urgent (banner) announcements.
          */
-        getUrgent: () => Promise<BITMEX.Announcement[]>;
+        getUrgent: () => Promise<any>;
     };
     APIKey: {
         /**
          * @Authorized
          * Get your API Keys.
          */
-        get: (qs?: BITMEX.ApiKeyQuery) => Promise<BITMEX.APIKey[]>;
+        get: (qs?: BITMEX.ApiKeyQuery) => Promise<any>;
     };
     Chat: {
         /**
+         * Get pinned message for a channel.
+         */
+        getPinnedMessage: (qs: BITMEX.ChatPinnedQuery) => Promise<BITMEX.PinnedMessage>;
+        /**
          * Get chat messages.
          */
-        get: (qs?: BITMEX.ChatQuery) => Promise<BITMEX.Chat[]>;
+        get: (qs?: BITMEX.ChatQuery) => Promise<any>;
         /**
          * @Authorized
          * Send a chat message.
@@ -34,7 +38,7 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         /**
          * Get available channels.
          */
-        getChannels: () => Promise<BITMEX.ChatChannel[]>;
+        getChannels: () => Promise<any>;
         /**
          * Get connected users.Returns an array with browser users in the first position and API users (bots) in the second position.
          */
@@ -51,36 +55,50 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          *
          * See [the FIX Spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_8_8.html) for explanations of these fields.
          */
-        get: (qs?: BITMEX.ExecutionQuery) => Promise<BITMEX.Execution[]>;
+        get: (qs?: BITMEX.ExecutionQuery) => Promise<any>;
         /**
          * @Authorized
-         * Get all balance-affecting executions. This includes each trade, insurance charge, and settlement.
+         * Get all balance-affecting executions.
          */
-        getTradeHistory: (qs?: BITMEX.ExecutionTradeHistoryQuery) => Promise<BITMEX.Execution[]>;
+        getTradeHistory: (qs?: BITMEX.ExecutionTradeHistoryQuery) => Promise<any>;
     };
     Funding: {
         /**
          * Get funding history.
          */
-        get: (qs?: BITMEX.FundingQuery) => Promise<BITMEX.Funding[]>;
+        get: (qs?: BITMEX.FundingQuery) => Promise<any>;
     };
     Instrument: {
         /**
-         * Get instruments.This returns all instruments and indices, including those that have settled or are unlisted. Use this endpoint if you want to query for individual instruments or use a complex filter. Use `/instrument/active` to return active instruments, or use a filter like `{"state": "Open"}`.
+         * Get instruments.This returns all instruments and indices, including those that have settled or are unlisted.
+         * Use this endpoint if you want to query for individual instruments or use a complex filter.
+         * Use `/instrument/active` to return active instruments, or use a filter like `{"state": "Open"}`.
+         *
+         * The instrument type is specified by the `typ` param.
+         *
+         * - Perpetual Contracts - `FFWCSX`
+         * - Perpetual Contracts (FX underliers) - `FFWCSF`
+         * - Spot - `IFXXXP`
+         * - Futures - `FFCCSX`
+         * - BitMEX Basket Index - `MRBXXX`
+         * - BitMEX Crypto Index - `MRCXXX`
+         * - BitMEX FX Index - `MRFXXX`
+         * - BitMEX Lending/Premium Index - `MRRXXX`
+         * - BitMEX Volatility Index - `MRIXXX`
          */
-        get: (qs?: BITMEX.InstrumentQuery) => Promise<BITMEX.Instrument[]>;
+        get: (qs?: BITMEX.InstrumentQuery) => Promise<any>;
         /**
          * Get all active instruments and instruments that have expired in <24hrs.
          */
-        getActive: () => Promise<BITMEX.Instrument[]>;
+        getActive: () => Promise<any>;
         /**
          * Get all price indices.
          */
-        getIndices: () => Promise<BITMEX.Instrument[]>;
+        getIndices: () => Promise<any>;
         /**
          * Helper method. Gets all active instruments and all indices. This is a join of the result of /indices and /active.
          */
-        getActiveAndIndices: () => Promise<BITMEX.Instrument[]>;
+        getActiveAndIndices: () => Promise<any>;
         /**
          * Return all active contract series and interval pairs.This endpoint is useful for determining which pairs are live. It returns two arrays of   strings. The first is intervals, such as `["XBT:perpetual", "XBT:quarterly", "XBT:biquarterly", "ETH:quarterly", ...]`. These identifiers are usable in any query's `symbol` param. The second array is the current resolution of these intervals. Results are mapped at the same index.
          */
@@ -88,24 +106,28 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         /**
          * Show constituent parts of an index.Composite indices are built from multiple external price sources.
          *
-         * Use this endpoint to get the underlying prices of an index. For example, send a `symbol` of `.XBT` to
-         * get the ticks and weights of the constituent exchanges that build the ".XBT" index.
+         * Use this endpoint to get the underlying prices of an index. For example, send a `symbol` of `.BXBT` to
+         * get the ticks and weights of the constituent exchanges that build the ".BXBT" index.
          *
          * A tick with reference `"BMI"` and weight `null` is the composite index tick.
          */
-        getCompositeIndex: (qs?: BITMEX.InstrumentCompositeIndexQuery) => Promise<BITMEX.IndexComposite[]>;
+        getCompositeIndex: (qs?: BITMEX.InstrumentCompositeIndexQuery) => Promise<any>;
+        /**
+         * Get a summary of exchange statistics in USD.
+         */
+        getUsdVolume: (qs?: BITMEX.InstrumentUsdVolumeQuery) => Promise<any>;
     };
     Insurance: {
         /**
          * Get insurance fund history.
          */
-        get: (qs?: BITMEX.InsuranceQuery) => Promise<BITMEX.Insurance[]>;
+        get: (qs?: BITMEX.InsuranceQuery) => Promise<any>;
     };
     Leaderboard: {
         /**
          * Get current leaderboard.
          */
-        get: (qs?: BITMEX.LeaderboardQuery) => Promise<BITMEX.Leaderboard[]>;
+        get: (qs?: BITMEX.LeaderboardQuery) => Promise<any>;
         /**
          * @Authorized
          * Get your alias on the leaderboard.
@@ -118,14 +140,14 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         /**
          * Get liquidation orders.
          */
-        get: (qs?: BITMEX.LiquidationQuery) => Promise<BITMEX.Liquidation[]>;
+        get: (qs?: BITMEX.LiquidationQuery) => Promise<any>;
     };
     GlobalNotification: {
         /**
          * @Authorized
          * Get your current GlobalNotifications.This is an upcoming feature and currently does not return data.
          */
-        get: () => Promise<BITMEX.GlobalNotification[]>;
+        get: () => Promise<any>;
     };
     Order: {
         /**
@@ -134,7 +156,7 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          *
          * See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_D_68.html">the FIX Spec</a> for explanations of these fields.
          */
-        getOrders: (qs?: BITMEX.OrderQuery) => Promise<BITMEX.Order[]>;
+        getOrders: (qs?: BITMEX.OrderQuery) => Promise<any>;
         /**
          * @Authorized
          * Create a new order.## Placing Orders
@@ -160,28 +182,81 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * and `price`.
          * - **MarketIfTouched**: Similar to a Stop, but triggers are done in the opposite direction. Useful for Take Profit orders.
          * - **LimitIfTouched**: As above; use for Take Profit Limit orders.
+         * - **Pegged**: Pegged orders allow users to submit a limit price relative to the current market price. Specify a
+         * `pegPriceType`, and `pegOffsetValue`.
+         * - Pegged orders **must** have an `execInst` of `Fixed`. This means the limit price is set at the time the order
+         * is accepted and does not change as the reference price changes.
+         * - `PrimaryPeg`: Price is set relative to near touch price.
+         * - `MarketPeg`: Price is set relative to far touch price.
+         * - A `pegPriceType` submitted with no `ordType` is treated as a `Pegged` order.
          *
          * #### Execution Instructions
          *
          * The following `execInst`s are supported. If using multiple, separate with a comma (e.g. `LastPrice,Close`).
          *
-         * - **ParticipateDoNotInitiate**: Also known as a Post-Only order. If this order would have executed on placement,
-         * it will cancel instead.
+         * - **ParticipateDoNotInitiate**: Also known as a Post-Only order. If this order would have executed on placement, it will cancel instead.
+         * This is intended to protect you from the far touch moving towards you while the order is in transit.
+         * It is not intended for speculating on the far touch moving away after submission - we consider such behaviour abusive and monitor for it.
          * - **MarkPrice, LastPrice, IndexPrice**: Used by stop and if-touched orders to determine the triggering price.
-         * Use only one. By default, `'MarkPrice'` is used. Also used for Pegged orders to define the value of `'LastPeg'`.
-         * - **ReduceOnly**: A `'ReduceOnly'` order can only reduce your position, not increase it. If you have a `'ReduceOnly'`
+         * Use only one. By default, `MarkPrice` is used. Also used for Pegged orders to define the value of `LastPeg`. IndexPrice is not applicable to spot trading symbols.
+         * - **ReduceOnly**: A `ReduceOnly` order can only reduce your position, not increase it. If you have a `ReduceOnly`
          * limit order that rests in the order book while the position is reduced by other orders, then its order quantity will
-         * be amended down or canceled. If there are multiple `'ReduceOnly'` orders the least aggressive will be amended first.
-         * - **Close**: `'Close'` implies `'ReduceOnly'`. A `'Close'` order will cancel other active limit orders with the same side
+         * be amended down or canceled. If there are multiple `ReduceOnly` orders the least aggressive will be amended first. Not applicable to spot trading symbols.
+         * - **Close**: `Close` implies `ReduceOnly`. A `Close` order will cancel other active limit orders with the same side
          * and symbol if the open quantity exceeds the current position. This is useful for stops: by canceling these orders, a
-         * `'Close'` Stop is ensured to have the margin required to execute, and can only execute up to the full size of your
-         * position. If `orderQty` is not specified, a `'Close'` order has an `orderQty` equal to your current position's size.
+         * `Close` Stop is ensured to have the margin required to execute, and can only execute up to the full size of your
+         * position. If `orderQty` is not specified, a `Close` order has an `orderQty` equal to your current position's size. Not applicable to spot trading symbols.
          * - Note that a `Close` order without an `orderQty` requires a `side`, so that BitMEX knows if it should trigger
          * above or below the `stopPx`.
+         * - **LastWithinMark**: Used by stop orders with `LastPrice` to allow stop triggers only when:
+         * - For Sell Stop Market / Stop Limit Order
+         * - Last Price &lt= Stop Price
+         * - Last Price &gt= Mark Price × (1 - 5%)
+         * - For Buy Stop Market / Stop Limit Order:
+         * - Last Price &gt= Stop Price
+         * - Last Price &lt= Mark Price × (1 + 5%)
+         * - Not applicable to spot trading symbols.
+         * - **Fixed**: Pegged orders **must** have an `execInst` of `Fixed`. This means the limit price is set at the time
+         * the order is accepted and does not change as the reference price changes.
+         *
+         * #### Pegged Orders
+         *
+         * Pegged orders allow users to submit a limit price relative to the current market price.
+         * The limit price is set once when the order is submitted and does not change with the reference price.
+         * This order type is not intended for speculating on the far touch moving away after submission - we consider such behaviour abusive and monitor for it.
+         *
+         * Pegged orders have an `ordType` of `Pegged`, and an `execInst` of `Fixed`.
+         *
+         * A `pegPriceType` and `pegOffsetValue` must also be submitted:
+         *
+         * - `PrimaryPeg` - price is set relative to the **near touch** price
+         * - `MarketPeg` - price is set relative to the **far touch** price
+         *
+         * #### Trailing Stop Pegged Orders
+         *
+         * Use `pegPriceType` of `TrailingStopPeg` to create Trailing Stops.
+         *
+         * The price is set at submission and updates once per second if the underlying price (last/mark/index) has moved by
+         * more than 0.1%. `stopPx` then moves as the market moves away from the peg, and freezes as the market moves toward it.
+         *
+         * Use `pegOffsetValue` to set the `stopPx` of your order. The peg is set to the triggering price specified in the
+         * `execInst` (default `MarkPrice`). Use a negative offset for stop-sell and buy-if-touched orders.
+         *
+         * Requires `ordType`: `Stop`, `StopLimit`, `MarketIfTouched`, `LimitIfTouched`.
          *
          * #### Linked Orders
          *
-         * [Linked Orders are deprecated as of 2018/11/10](https://blog.bitmex.com/api_announcement/deprecation-of-contingent-orders/)
+         * Linked Orders are an advanced capability. It is very powerful, but its use requires careful coding and testing.
+         * Please follow this document carefully and use the [Testnet Exchange](https://testnet.bitmex.com) while developing.
+         *
+         * BitMEX offers four advanced Linked Order types:
+         *
+         * - **OCO**: _One Cancels the Other_. A very flexible version of the standard Stop / Take Profit technique.
+         * Multiple orders may be linked together using a single `clOrdLinkID`. Send a `contingencyType` of
+         * `OneCancelsTheOther` on the orders. The first order that fully or partially executes (or activates
+         * for `Stop` orders) will cancel all other orders with the same `clOrdLinkID`.
+         * - **OTO**: _One Triggers the Other_. Send a `contingencyType` of `'OneTriggersTheOther'` on the primary order and
+         * then subsequent orders with the same `clOrdLinkID` will be not be triggered until the primary order fully executes.
          *
          * #### Trailing Stops
          *
@@ -199,11 +274,8 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          *
          * #### Rate Limits
          *
-         * See the [Bulk Order Documentation](#!/Order/Order_newBulk) if you need to place multiple orders at the same time.
-         * Bulk orders require fewer risk checks in the trading engine and thus are ratelimited at **1/10** the normal rate.
-         *
-         * You can also improve your reactivity to market movements while staying under your ratelimit by using the
-         * [Amend](#!/Order/Order_amend) and [Amend Bulk](#!/Order/Order_amendBulk) endpoints. This allows you to stay
+         * You can improve your reactivity to market movements while staying under your rate limit by using the
+         * [Amend](#!/Order/Order_amend) endpoint (PUT /order). This allows you to stay
          * in the market and avoids the cancel/replace cycle.
          *
          * #### Tracking Your Orders
@@ -232,34 +304,13 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * already filled.
          *
          * > A `leavesQty` can be used to make a "Filled" order live again, if it is received within 60 seconds of the fill.
-         *
-         * Like order placement, amending can be done in bulk. Simply send a request to `PUT /api/v1/order/bulk` with
-         * a JSON body of the shape: `{"orders": [{...}, {...}]}`, each object containing the fields used in this endpoint.
          */
         amend: (form?: BITMEX.OrderPut) => Promise<BITMEX.Order>;
         /**
          * @Authorized
          * Cancel order(s). Send multiple order IDs to cancel in bulk.Either an orderID or a clOrdID must be provided.
          */
-        cancel: (form?: BITMEX.OrderDelete) => Promise<BITMEX.Order[]>;
-        /**
-         * @Authorized
-         * Create multiple new orders for the same symbol.This endpoint is used for placing bulk orders. Valid order types are Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, and Pegged.
-         *
-         * Each individual order object in the array should have the same properties as an individual POST /order call.
-         *
-         * This endpoint is much faster for getting many orders into the book at once. Because it reduces load on BitMEX
-         * systems, this endpoint is ratelimited at `ceil(0.1 * orders)`. Submitting 10 orders via a bulk order call
-         * will only count as 1 request, 15 as 2, 32 as 4, and so on.
-         *
-         * For now, only `application/json` is supported on this endpoint.
-         */
-        newBulk: (form?: BITMEX.OrderBulkPost) => Promise<BITMEX.Order[]>;
-        /**
-         * @Authorized
-         * Amend multiple orders for the same symbol.Similar to POST /amend, but with multiple orders. `application/json` only. Ratelimited at 10%.
-         */
-        amendBulk: (form?: BITMEX.OrderBulkPut) => Promise<BITMEX.Order[]>;
+        cancel: (form?: BITMEX.OrderDelete) => Promise<any>;
         /**
          * @Authorized
          * Close a position. [Deprecated, use POST /order with execInst: 'Close']If no `price` is specified, a market order will be submitted to close the whole of your position. This will also close all other open orders in this symbol.
@@ -269,7 +320,7 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * @Authorized
          * Cancels all of your orders.
          */
-        cancelAll: (form?: BITMEX.OrderAllDelete) => Promise<BITMEX.Order[]>;
+        cancelAll: (form?: BITMEX.OrderAllDelete) => Promise<any>;
         /**
          * @Authorized
          * Automatically cancel all your orders after a specified timeout.Useful as a dead-man's switch to ensure your orders are canceled in case of an outage.
@@ -286,7 +337,7 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         /**
          * Get current orderbook in vertical format.
          */
-        getL2: (qs: BITMEX.OrderBookL2Query) => Promise<BITMEX.OrderBookL2[]>;
+        getL2: (qs: BITMEX.OrderBookL2Query) => Promise<any>;
     };
     Position: {
         /**
@@ -294,6 +345,8 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * Get your positions.This endpoint is used for retrieving position information. The fields largely follow the [FIX spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_AP_6580.html) definitions. Some selected fields are explained in more detail below.
          *
          * The fields _account_, _symbol_, _currency_ are unique to each position and form its key.
+         *
+         * Spot trading symbols returns a subset of the position fields, mainly the open order aggregates.
          *
          * - **account**: Your unique account ID.
          * - **symbol**: The contract for this position.
@@ -314,39 +367,52 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * - **currentComm**: The current commission of the position in the settlement currency of the symbol (_currency_).
          * - **realisedCost**: The realised cost of this position calculated with regard to average cost accounting.
          * - **unrealisedCost**: _currentCost_ - _realisedCost_.
-         * - **grossOpenCost**: The absolute value of your open orders for this symbol.
          * - **grossOpenPremium**: The amount your bidding above the mark price in the settlement currency of the symbol (_currency_).
          * - **markPrice**: The mark price of the symbol in _quoteCurrency_.
          * - **markValue**: The _currentQty_ at the mark price in the settlement currency of the symbol (_currency_).
          * - **homeNotional**: Value of position in units of _underlying_.
          * - **foreignNotional**: Value of position in units of _quoteCurrency_.
          * - **realisedPnl**: The negative of _realisedCost_.
-         * - **unrealisedGrossPnl**: _markValue_ - _unrealisedCost_.
          * - **unrealisedPnl**: _unrealisedGrossPnl_.
          * - **liquidationPrice**: Once markPrice reaches this price, this position will be liquidated.
          * - **bankruptPrice**: Once markPrice reaches this price, this position will have no equity.
          */
-        get: (qs?: BITMEX.PositionQuery) => Promise<BITMEX.Position[]>;
+        get: (qs?: BITMEX.PositionQuery) => Promise<any>;
         /**
          * @Authorized
-         * Enable isolated margin or cross margin per-position.
+         * Enable isolated margin or cross margin per-position.Users can switch isolate margin per-position. This function allows switching margin isolation (aka fixed margin) on and off.
          */
         isolateMargin: (form: BITMEX.PositionIsolatePost) => Promise<BITMEX.Position>;
         /**
          * @Authorized
-         * Update your risk limit.
+         * Update your risk limit.Risk Limits limit the size of positions you can trade at various margin levels. Larger positions require more margin. Please see the Risk Limit documentation for more details.
          */
         updateRiskLimit: (form: BITMEX.PositionRiskLimitPost) => Promise<BITMEX.Position>;
         /**
          * @Authorized
-         * Transfer equity in or out of a position.
+         * Transfer equity in or out of a position.When margin is isolated on a position, use this function to add or remove margin from the position. Note that you cannot remove margin below the initial margin threshold.
          */
         transferIsolatedMargin: (form: BITMEX.PositionTransferMarginPost) => Promise<BITMEX.Position>;
         /**
          * @Authorized
-         * Choose leverage for a position.
+         * Choose leverage for a position.Users can choose an isolated leverage. This will automatically enable isolated margin.
          */
         updateLeverage: (form: BITMEX.PositionLeveragePost) => Promise<BITMEX.Position>;
+        /**
+         * @Authorized
+         * Choose leverage for a cross position.Users can choose an isolated leverage. This will automatically enable isolated margin.
+         */
+        updateCrossLeverage: (form: BITMEX.PositionCrossLeveragePost) => Promise<BITMEX.Position>;
+    };
+    Quote: {
+        /**
+         * Get Quotes.
+         */
+        get: (qs?: BITMEX.QuoteQuery) => Promise<any>;
+        /**
+         * Get previous quotes in time buckets.Timestamps returned by our bucketed endpoints are the **end** of the period, indicating when the bucket was written to disk. Some other common systems use the timestamp as the beginning of the period. Please be aware of this when using this endpoint.
+         */
+        getBucketed: (qs?: BITMEX.QuoteBucketedQuery) => Promise<any>;
     };
     Schema: {
         /**
@@ -362,21 +428,21 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         /**
          * Get settlement history.
          */
-        get: (qs?: BITMEX.SettlementQuery) => Promise<BITMEX.Settlement[]>;
+        get: (qs?: BITMEX.SettlementQuery) => Promise<any>;
     };
     Stats: {
         /**
          * Get exchange-wide and per-series turnover and volume statistics.
          */
-        get: () => Promise<BITMEX.Stats[]>;
+        get: () => Promise<any>;
         /**
          * Get historical exchange-wide and per-series turnover and volume statistics.
          */
-        history: () => Promise<BITMEX.StatsHistory[]>;
+        history: () => Promise<any>;
         /**
          * Get a summary of exchange statistics in USD.
          */
-        historyUSD: () => Promise<BITMEX.StatsUSD[]>;
+        historyUSD: () => Promise<any>;
     };
     Trade: {
         /**
@@ -384,20 +450,25 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          *
          * See [the FIX Spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_AE_6569.html) for explanations of these fields.
          */
-        get: (qs?: BITMEX.TradeQuery) => Promise<BITMEX.Trade[]>;
+        get: (qs?: BITMEX.TradeQuery) => Promise<any>;
         /**
          * Get previous trades in time buckets.Timestamps returned by our bucketed endpoints are the **end** of the period, indicating when the bucket was written to disk. Some other common systems use the timestamp as the beginning of the period. Please be aware of this when using this endpoint.
          *
          * Also note the `open` price is equal to the `close` price of the previous timeframe bucket.
          */
-        getBucketed: (qs?: BITMEX.TradeBucketedQuery) => Promise<BITMEX.TradeBin[]>;
+        getBucketed: (qs?: BITMEX.TradeBucketedQuery) => Promise<any>;
     };
     User: {
         /**
          * @Authorized
          * Get a deposit address.
          */
-        getDepositAddress: (qs?: BITMEX.UserDepositAddressQuery) => Promise<string>;
+        getDepositAddress: (qs: BITMEX.UserDepositAddressQuery) => Promise<string>;
+        /**
+         * @Authorized
+         * Get a deposit address.
+         */
+        getDepositAddressInformation: (qs: BITMEX.UserDepositAddressInformationQuery) => Promise<BITMEX.DepositAddress>;
         /**
          * @Authorized
          * Get your current wallet information.
@@ -407,26 +478,86 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * @Authorized
          * Get a history of all of your wallet transactions (deposits, withdrawals, PNL).
          */
-        getWalletHistory: (qs?: BITMEX.UserWalletHistoryQuery) => Promise<BITMEX.Transaction[]>;
+        getWalletHistory: (qs?: BITMEX.UserWalletHistoryQuery) => Promise<any>;
         /**
          * @Authorized
-         * Get a summary of all of your wallet transactions (deposits, withdrawals, PNL).
+         * Get a summary of all of your wallet transactions (deposits, withdrawals, PNL).Provides an aggregated view of transactions, by transaction type, over a specific time period.
          */
-        getWalletSummary: (qs?: BITMEX.UserWalletSummaryQuery) => Promise<BITMEX.Transaction[]>;
+        getWalletSummary: (qs?: BITMEX.UserWalletSummaryQuery) => Promise<any>;
         /**
          * @Authorized
          * Get the execution history by day.
          */
         getExecutionHistory: (qs?: BITMEX.UserExecutionHistoryQuery) => Promise<any>;
         /**
-         * Get the minimum withdrawal fee for a currency.This is changed based on network conditions to ensure timely withdrawals. During network congestion, this may be high. The fee is returned in the same currency.
+         * @Authorized
+         * Get the current user staking amount.
          */
-        minWithdrawalFee: (qs?: BITMEX.UserMinWithdrawalFeeQuery) => Promise<any>;
+        getStaking: (qs?: BITMEX.UserStakingQuery) => Promise<any>;
         /**
          * @Authorized
-         * Request a withdrawal to an external wallet.This will send a confirmation email to the email address on record.
+         * Get the current user unstaking requests
+         */
+        getUnstakingRequests: (qs: BITMEX.UserUnstakingRequestsQuery) => Promise<any>;
+        /**
+         * @Authorized
+         * Create unstaking request
+         */
+        createUnstakingRequests: (form: BITMEX.UserUnstakingRequestsPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Cancel unstaking request
+         */
+        deleteUnstakingRequests: (form: BITMEX.UserUnstakingRequestsDelete) => Promise<any>;
+        /**
+         * @Authorized
+         * List staking instruments
+         */
+        getStakingInstruments: (qs?: BITMEX.UserStakingInstrumentsQuery) => Promise<any>;
+        /**
+         * List staking tiers for a given currency
+         */
+        getStakingTiers: (qs: BITMEX.UserStakingTiersQuery) => Promise<any>;
+        /**
+         * @Authorized
+         * Execute a transfer to a linked account.
+         */
+        walletTransfer: (form: BITMEX.UserWalletTransferPost) => Promise<BITMEX.Transaction>;
+        /**
+         * @Authorized
+         * Request a withdrawal to an external wallet or separate BitMEX account.### Email Confirmation
+         *
+         * In most cases, this endpoint will send a confirmation email to the email address on record. When withdrawing to a saved address (i.e. given `addressId` or a corresponding `address`) with `skipConfirm` configured, the withdrawal will be immediately confirmed.
+         *
+         * ### Two-Factor Authentication
+         *
+         * A valid 2FA code (`otpToken`) is required for all withdrawals unless the destination address is associated with either a saved address with `skip2FA` configured or a linked BitMEX account (e.g. a subaccount).
+         *
+         * ### Internal Transfers
+         *
+         * If a valid BitMEX deposit address is provided, the transaction will be made directly between BitMEX accounts. There will be no resulting on-chain transaction and no network fee will be charged.
+         *
+         * When given another account ID (`targetUserId`), the request will only succeed if the account is linked to the authenticated account.
+         *
+         * Note that `/api/v1/user/walletTransfer` may be a more suitable endpoint for transfers between linked accounts.
+         *
+         * ### Saved Address Verification
+         *
+         * Please note that when using saved addresses, `skip2FA` and `skipConfirm` require verification:
+         * - `skip2FA` can be verified by providing `otpToken` when creating the address. If `otpToken` is not provided, a 2FA code can be provided by visiting the link included in the email sent upon address creation.
+         *
+         * - `skipConfirm` can be verified by visiting the link included in the email sent upon address creation.
+         *
+         * ### Whitelist
+         *
+         * If the address book has the `whitelist` setting enabled, all withdrawal requests must be directed to either a saved addresses or a linked account. All other addresses will be rejected. Note that saved addresses must be __active__. A new saved address is active if it has been 2FA verified and a cooldown period has passed since its creation.
          */
         requestWithdrawal: (form: BITMEX.UserRequestWithdrawalPost) => Promise<BITMEX.Transaction>;
+        /**
+         * @Authorized
+         * Cancel pending withdrawal
+         */
+        cancelPendingWithdrawal: (form: BITMEX.UserWithdrawalDelete) => Promise<any>;
         /**
          * Cancel a withdrawal.
          */
@@ -443,16 +574,46 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
          * @Authorized
          * Get your current affiliate/referral status.
          */
-        getAffiliateStatus: () => Promise<BITMEX.Affiliate>;
+        getAffiliateStatus: (qs?: BITMEX.UserAffiliateStatusQuery) => Promise<BITMEX.Affiliate>;
         /**
          * Check if a referral code is valid.If the code is valid, responds with the referral code's discount (e.g. `0.1` for 10%). Otherwise, will return a 404 or 451 if invalid.
          */
-        checkReferralCode: (qs?: BITMEX.UserCheckReferralCodeQuery) => Promise<number>;
+        checkReferralCode: (qs?: BITMEX.UserCheckReferralCodeQuery) => Promise<any>;
         /**
          * @Authorized
          * Get 7 days worth of Quote Fill Ratio statistics.
          */
-        getQuoteFillRatio: () => Promise<BITMEX.QuoteFillRatio>;
+        getQuoteFillRatio: (qs?: BITMEX.UserQuoteFillRatioQuery) => Promise<BITMEX.QuoteFillRatio>;
+        /**
+         * @Authorized
+         * Get Quote Value Ratio statistics over the last 3 days
+         */
+        getQuoteValueRatio: (qs?: BITMEX.UserQuoteValueRatioQuery) => Promise<BITMEX.QuoteValueRatio>;
+        /**
+         * @Authorized
+         * Get your 30 days USD average trading volume
+         */
+        getTradingVolume: () => Promise<any>;
+        /**
+         * @Authorized
+         * Creates a new sub-account.
+         */
+        createSubAccount: (form: BITMEX.UserAddSubaccountPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Creates a new independant sub-account.
+         */
+        createIndependentSubaccount: (form: BITMEX.UserCreateIndependentSubaccountPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Updates the sub-account name.
+         */
+        updateSubAccount: (form: BITMEX.UserUpdateSubaccountPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Get the list of accounts you can transfer funds between.
+         */
+        getWalletTransferAccounts: () => Promise<any>;
         /**
          * Log out of BitMEX.
          */
@@ -469,6 +630,11 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         get: () => Promise<BITMEX.User>;
         /**
          * @Authorized
+         * This function allows switching margining mode between single-asset margining and multi-asset margining.
+         */
+        marginingMode: (form?: BITMEX.UserMarginingModePost) => Promise<BITMEX.Account>;
+        /**
+         * @Authorized
          * Get your account's commission status.
          */
         getCommission: () => Promise<BITMEX.UserCommissionsBySymbol>;
@@ -479,15 +645,161 @@ export declare class BitmexAPI extends BitmexAbstractAPI {
         getMargin: (qs?: BITMEX.UserMarginQuery) => Promise<BITMEX.Margin>;
         /**
          * @Authorized
+         * Get your account's CSA status.
+         */
+        getCSA: () => Promise<BITMEX.CollateralSupportAgreement>;
+        /**
+         * @Authorized
          * Register your communication token for mobile clients
          */
-        communicationToken: (form: BITMEX.UserCommunicationTokenPost) => Promise<BITMEX.CommunicationToken[]>;
+        communicationToken: (form: BITMEX.UserCommunicationTokenPost) => Promise<any>;
     };
     UserEvent: {
         /**
          * @Authorized
          * Get your user events
          */
-        get: (qs?: BITMEX.UserEventQuery) => Promise<BITMEX.UserEvent[]>;
+        get: (qs?: BITMEX.UserEventQuery) => Promise<any>;
+    };
+    Wallet: {
+        /**
+         * Get Assets Config
+         */
+        getAssetsConfig: () => Promise<any>;
+        /**
+         * Get Networks Config
+         */
+        getNetworksConfig: () => Promise<any>;
+        /**
+         * Get Frontend Currency Config
+         */
+        getAssetHaircuts: () => Promise<any>;
+    };
+    Address: {
+        /**
+         * @Authorized
+         * Creates a new saved address.### Verification
+         *
+         * Please note that `skip2FA` and `skipConfirm` require verification:
+         * - `skip2FA` can be verified by providing `otpToken` in this request. If `otpToken` is not provided, a 2FA code can be entered by following the the link included in the email sent upon address creation.
+         *
+         * - `skipConfirm` can be verified by following the link included in the email sent upon address creation.
+         *
+         * Please note that the email will be valid for 30 minutes.
+         *
+         * ### Whitelist
+         *
+         * If the address book has the `whitelist` setting enabled, then creating a saved address will require both 2FA verification and the passage of cooldown period. 2FA can either be provided immediately (`otpToken`) or by following the link included in the email sent upon address creation.
+         */
+        new: (form: BITMEX.AddressPost) => Promise<BITMEX.Address>;
+        /**
+         * @Authorized
+         * Get your addresses.
+         */
+        get: () => Promise<any>;
+    };
+    AddressConfig: {
+        /**
+         * @Authorized
+         * Get your address book settings.
+         */
+        get: () => Promise<BITMEX.AddressConfig>;
+    };
+    UserAffiliates: {
+        /**
+         * @Authorized
+         * Get user's affiliates to a given depth
+         */
+        get: (qs?: BITMEX.UserAffiliatesQuery) => Promise<any>;
+    };
+    Guild: {
+        /**
+         * @Authorized
+         * Creates a new guild
+         */
+        new: (form: BITMEX.GuildPost) => Promise<BITMEX.Guild>;
+        /**
+         * @Authorized
+         * Edit guild new guild
+         */
+        edit: (form: BITMEX.GuildPut) => Promise<BITMEX.Guild>;
+        /**
+         * Get all guilds
+         */
+        get: () => Promise<any>;
+        /**
+         * @Authorized
+         * Toggle share trades for your account, which controls whether your guild members can see your orders and positions in their UI
+         */
+        shareTrades: (form: BITMEX.GuildShareTradesPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Leave guild or cancel guild join request
+         */
+        leave: () => Promise<any>;
+        /**
+         * @Authorized
+         * Kick member from guild
+         */
+        kick: (form: BITMEX.GuildKickPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Request to Join a private guild or join a public guild
+         */
+        join: (form: BITMEX.GuildJoinPost) => Promise<any>;
+        /**
+         * @Authorized
+         * Archive a guild
+         */
+        archive: () => Promise<any>;
+    };
+    Porl: {
+        /**
+         * @Authorized
+         * Get your Proof of Reserves nonce and data.## Proof of Reserves Nonce
+         *
+         * This endpoint will return the nonce and associated data needed to validate BitMEX reserves data.
+         *
+         * <!-- TODO link to docs, GitHub, etc -->
+         */
+        getNonce: () => Promise<BITMEX.Porl>;
+        /**
+         * Get Proof of Reserves historical snapshots
+         */
+        getSnapshots: () => Promise<any>;
+    };
+    ReferralCode: {
+        /**
+         * @Authorized
+         * Create a new referral code
+         */
+        createReferralCode: (body: BITMEX.ReferralCodePost) => Promise<any>;
+        /**
+         * @Authorized
+         * Returns all referral codes for the logged-in user
+         */
+        getAllCodesForUser: () => Promise<any>;
+        /**
+         * @Authorized
+         * Check if a referral code is valid
+         */
+        checkReferralCode: (path: BITMEX.ReferralCodeCheckGet) => Promise<{
+            available: boolean;
+        }>;
+        /**
+         * @Authorized
+         * Update an existing referral code
+         */
+        updateReferralCode: (path: BITMEX.ReferralCodePut, body: BITMEX.ReferralCodePut) => Promise<any>;
+        /**
+         * @Authorized
+         * Delete a referral code
+         */
+        deleteReferralCode: (path: BITMEX.ReferralCodeDelete) => Promise<boolean>;
+        /**
+         * @Authorized
+         * Get a referral code by ID
+         */
+        getReferralCode: (path: BITMEX.ReferralCodeGet) => Promise<any>;
     };
 }
