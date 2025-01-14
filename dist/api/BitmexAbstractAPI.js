@@ -28,6 +28,9 @@ class BitmexAbstractAPI {
         if (opts.form && Object.keys(opts.form).length === 0) {
             delete opts.form;
         }
+        if (opts.body && Object.keys(opts.body).length === 0) {
+            delete opts.body;
+        }
         const url = `${this.host}${this.basePath}${endpoint}`;
         const path = url_1.parse(url).pathname || '';
         const headers = (auth || this.hasApiKeys) ? BitmexAuth_1.getAuthHeaders({

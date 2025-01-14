@@ -26,10 +26,25 @@ export interface APIKey {
     name: string; // maxLength: 64
     nonce: number; // format: int64
     cidr: string; // maxLength: 18
+    cidrs: any[]; // default: []
+    targetAccountId: number; // format: int32
     permissions: any[]; // default: []
     enabled: boolean;
     userId: number; // format: int32
     created: string; // format: date-time
+}
+
+/**
+ * Pinned Messages
+ */
+export interface PinnedMessage {
+    id: number; // format: int32
+    channelID: number; // format: int32
+    messageId: number; // format: int32
+    created: string; // format: date-time
+    ended: string; // format: date-time
+    createdUserId: number; // format: double
+    endedUserId: number; // format: double
 }
 
 /**
@@ -39,15 +54,16 @@ export interface Chat {
     id: number; // format: int32
     date: string; // format: date-time
     user: string;
+    userColor: string;
     message: string;
     html: string;
-    fromBot: boolean;
     channelID: number; // format: double
 }
 
 export interface ChatChannel {
     id: number; // format: int32
     name: string;
+    isPrivate: boolean;
 }
 
 export interface ConnectedUsers {
@@ -68,10 +84,7 @@ export interface Execution {
     side: string;
     lastQty: number; // format: int64
     lastPx: number; // format: double
-    underlyingLastPx: number; // format: double
-    lastMkt: string;
     lastLiquidityInd: string;
-    simpleOrderQty: number; // format: double
     orderQty: number; // format: int64
     price: number; // format: double
     displayQty: number; // format: int64
@@ -85,27 +98,28 @@ export interface Execution {
     timeInForce: string;
     execInst: string;
     contingencyType: string;
-    exDestination: string;
     ordStatus: string;
     triggered: string;
     workingIndicator: boolean;
     ordRejReason: string;
-    simpleLeavesQty: number; // format: double
     leavesQty: number; // format: int64
-    simpleCumQty: number; // format: double
     cumQty: number; // format: int64
     avgPx: number; // format: double
     commission: number; // format: double
+    brokerCommission: number; // format: double
+    feeType: string;
     tradePublishIndicator: string;
-    multiLegReportingType: string;
     text: string;
     trdMatchID: string; // format: guid
     execCost: number; // format: int64
     execComm: number; // format: int64
+    brokerExecComm: number; // format: int64
     homeNotional: number; // format: double
     foreignNotional: number; // format: double
     transactTime: string; // format: date-time
     timestamp: string; // format: date-time
+    realisedPnl: number; // format: int64
+    trdType: string;
 }
 
 /**
@@ -131,14 +145,7 @@ export interface Instrument {
     front: string; // format: date-time
     expiry: string; // format: date-time
     settle: string; // format: date-time
-    relistInterval: string; // format: date-time
-    inverseLeg: string;
-    sellLeg: string;
-    buyLeg: string;
-    optionStrikePcnt: number; // format: double
-    optionStrikeRound: number; // format: double
-    optionStrikePrice: number; // format: double
-    optionMultiplier: number; // format: double
+    listedSettle: string; // format: date-time
     positionCurrency: string;
     underlying: string;
     quoteCurrency: string;
@@ -164,13 +171,11 @@ export interface Instrument {
     riskLimit: number; // format: int64
     riskStep: number; // format: int64
     limit: number; // format: double
-    capped: boolean;
     taxed: boolean;
     deleverage: boolean;
     makerFee: number; // format: double
     takerFee: number; // format: double
     settlementFee: number; // format: double
-    insuranceFee: number; // format: double
     fundingBaseSymbol: string;
     fundingQuoteSymbol: string;
     fundingPremiumSymbol: string;
@@ -180,15 +185,9 @@ export interface Instrument {
     indicativeFundingRate: number; // format: double
     rebalanceTimestamp: string; // format: date-time
     rebalanceInterval: string; // format: date-time
-    openingTimestamp: string; // format: date-time
-    closingTimestamp: string; // format: date-time
-    sessionInterval: string; // format: date-time
     prevClosePrice: number; // format: double
     limitDownPrice: number; // format: double
     limitUpPrice: number; // format: double
-    bankruptLimitDownPrice: number; // format: double
-    bankruptLimitUpPrice: number; // format: double
-    prevTotalVolume: number; // format: int64
     totalVolume: number; // format: int64
     volume: number; // format: int64
     volume24h: number; // format: int64
@@ -221,10 +220,13 @@ export interface Instrument {
     fairPrice: number; // format: double
     markMethod: string;
     markPrice: number; // format: double
-    indicativeTaxRate: number; // format: double
     indicativeSettlePrice: number; // format: double
-    optionUnderlyingPrice: number; // format: double
+    settledPriceAdjustmentRate: number; // format: double
     settledPrice: number; // format: double
+    instantPnl: boolean;
+    minTick: number; // format: double
+    fundingBaseRate: number; // format: double
+    fundingQuoteRate: number; // format: double
     timestamp: string; // format: date-time
 }
 
@@ -237,10 +239,23 @@ export interface IndexComposite {
     timestamp: string; // format: date-time
     symbol: string;
     indexSymbol: string;
+    indexMultiplier: number; // format: double
     reference: string;
     lastPrice: number; // format: double
+    sourcePrice: number; // format: double
+    conversionIndex: string;
+    conversionIndexPrice: number; // format: double
     weight: number; // format: double
     logged: string; // format: date-time
+}
+
+export interface StatsUSDBySymbol {
+    symbol: string;
+    currency: string;
+    turnover24h: number; // format: int64
+    turnover30d: number; // format: int64
+    turnover365d: number; // format: int64
+    turnover: number; // format: int64
 }
 
 /**
@@ -292,39 +307,34 @@ export interface GlobalNotification {
  * Placement, Cancellation, Amending, and History
  */
 export interface Order {
-    orderID: string; // format: guid
-    clOrdID: string;
-    clOrdLinkID: string;
-    account: number; // format: int64
-    symbol: string;
-    side: string;
-    simpleOrderQty: number; // format: double
-    orderQty: number; // format: int64
     price: number; // format: double
-    displayQty: number; // format: int64
-    stopPx: number; // format: double
-    pegOffsetValue: number; // format: double
-    pegPriceType: string;
-    currency: string;
-    settlCurrency: string;
     ordType: string;
-    timeInForce: string;
-    execInst: string;
-    contingencyType: string;
-    exDestination: string;
-    ordStatus: string;
-    triggered: string;
+    clOrdID: string;
+    stopPx: number; // format: double
     workingIndicator: boolean;
-    ordRejReason: string;
-    simpleLeavesQty: number; // format: double
-    leavesQty: number; // format: int64
-    simpleCumQty: number; // format: double
+    clOrdLinkID: string;
+    pegOffsetValue: number; // format: double
     cumQty: number; // format: int64
     avgPx: number; // format: double
-    multiLegReportingType: string;
-    text: string;
-    transactTime: string; // format: date-time
+    execInst: string;
+    symbol: string;
+    triggered: string;
     timestamp: string; // format: date-time
+    settlCurrency: string;
+    side: string;
+    leavesQty: number; // format: int64
+    contingencyType: string;
+    pegPriceType: string;
+    orderQty: number; // format: int64
+    account: number; // format: int64
+    orderID: string; // format: guid
+    ordStatus: string;
+    timeInForce: string;
+    currency: string;
+    text: string;
+    displayQty: number; // format: int64
+    ordRejReason: string;
+    transactTime: string; // format: date-time
 }
 
 export interface OrderBookL2 {
@@ -333,6 +343,8 @@ export interface OrderBookL2 {
     side: string;
     size: number; // format: int64
     price: number; // format: double
+    timestamp: string; // format: date-time
+    transactTime: string; // format: date-time
 }
 
 /**
@@ -354,33 +366,19 @@ export interface Position {
     rebalancedPnl: number; // format: int64
     prevRealisedPnl: number; // format: int64
     prevUnrealisedPnl: number; // format: int64
-    prevClosePrice: number; // format: double
-    openingTimestamp: string; // format: date-time
     openingQty: number; // format: int64
-    openingCost: number; // format: int64
-    openingComm: number; // format: int64
     openOrderBuyQty: number; // format: int64
     openOrderBuyCost: number; // format: int64
     openOrderBuyPremium: number; // format: int64
     openOrderSellQty: number; // format: int64
     openOrderSellCost: number; // format: int64
     openOrderSellPremium: number; // format: int64
-    execBuyQty: number; // format: int64
-    execBuyCost: number; // format: int64
-    execSellQty: number; // format: int64
-    execSellCost: number; // format: int64
-    execQty: number; // format: int64
-    execCost: number; // format: int64
-    execComm: number; // format: int64
-    currentTimestamp: string; // format: date-time
     currentQty: number; // format: int64
     currentCost: number; // format: int64
     currentComm: number; // format: int64
     realisedCost: number; // format: int64
     unrealisedCost: number; // format: int64
-    grossOpenCost: number; // format: int64
     grossOpenPremium: number; // format: int64
-    grossExecCost: number; // format: int64
     isOpen: boolean;
     markPrice: number; // format: double
     markValue: number; // format: int64
@@ -389,38 +387,17 @@ export interface Position {
     foreignNotional: number; // format: double
     posState: string;
     posCost: number; // format: int64
-    posCost2: number; // format: int64
     posCross: number; // format: int64
-    posInit: number; // format: int64
     posComm: number; // format: int64
     posLoss: number; // format: int64
     posMargin: number; // format: int64
     posMaint: number; // format: int64
-    posAllowance: number; // format: int64
-    taxableMargin: number; // format: int64
     initMargin: number; // format: int64
     maintMargin: number; // format: int64
-    sessionMargin: number; // format: int64
-    targetExcessMargin: number; // format: int64
-    varMargin: number; // format: int64
-    realisedGrossPnl: number; // format: int64
-    realisedTax: number; // format: int64
     realisedPnl: number; // format: int64
-    unrealisedGrossPnl: number; // format: int64
-    longBankrupt: number; // format: int64
-    shortBankrupt: number; // format: int64
-    taxBase: number; // format: int64
-    indicativeTaxRate: number; // format: double
-    indicativeTax: number; // format: int64
-    unrealisedTax: number; // format: int64
     unrealisedPnl: number; // format: int64
     unrealisedPnlPcnt: number; // format: double
     unrealisedRoePcnt: number; // format: double
-    simpleQty: number; // format: double
-    simpleCost: number; // format: double
-    simpleValue: number; // format: double
-    simplePnl: number; // format: double
-    simplePnlPcnt: number; // format: double
     avgCostPrice: number; // format: double
     avgEntryPrice: number; // format: double
     breakEvenPrice: number; // format: double
@@ -428,8 +405,18 @@ export interface Position {
     liquidationPrice: number; // format: double
     bankruptPrice: number; // format: double
     timestamp: string; // format: date-time
-    lastPrice: number; // format: double
-    lastValue: number; // format: int64
+}
+
+/**
+ * Best Bid/Offer Snapshots & Historical Bins
+ */
+export interface Quote {
+    timestamp: string; // format: date-time
+    symbol: string;
+    bidSize: number; // format: int64
+    bidPrice: number; // format: double
+    askPrice: number; // format: double
+    askSize: number; // format: int64
 }
 
 /**
@@ -490,6 +477,7 @@ export interface Trade {
     grossValue: number; // format: int64
     homeNotional: number; // format: double
     foreignNotional: number; // format: double
+    trdType: string;
 }
 
 export interface TradeBin {
@@ -508,20 +496,20 @@ export interface TradeBin {
     foreignNotional: number; // format: double
 }
 
+/**
+ * Deposit Address
+ */
+export interface DepositAddress {
+    address: string;
+    memo: string;
+}
+
+/**
+ * Assets and Networks Data
+ */
 export interface Wallet {
     account: number; // format: int64
     currency: string;
-    prevDeposited: number; // format: int64
-    prevWithdrawn: number; // format: int64
-    prevTransferIn: number; // format: int64
-    prevTransferOut: number; // format: int64
-    prevAmount: number; // format: int64
-    prevTimestamp: string; // format: date-time
-    deltaDeposited: number; // format: int64
-    deltaWithdrawn: number; // format: int64
-    deltaTransferIn: number; // format: int64
-    deltaTransferOut: number; // format: int64
-    deltaAmount: number; // format: int64
     deposited: number; // format: int64
     withdrawn: number; // format: int64
     transferIn: number; // format: int64
@@ -531,27 +519,52 @@ export interface Wallet {
     pendingDebit: number; // format: int64
     confirmedDebit: number; // format: int64
     timestamp: string; // format: date-time
-    addr: string;
-    script: string;
-    withdrawalLock: string[];
 }
 
 export interface Transaction {
     transactID: string; // format: guid
     account: number; // format: int64
     currency: string;
+    network: string;
     transactType: string;
     amount: number; // format: int64
+    walletBalance: number; // format: int64
     fee: number; // format: int64
     transactStatus: string;
     address: string;
     tx: string;
+    orderID: string; // format: guid
     text: string;
     transactTime: string; // format: date-time
     timestamp: string; // format: date-time
+    memo: string;
+}
+
+export interface WalletSummaryRecord {
+    account: number; // format: double
+    currency: string; // default: XBt
+    transactType: string;
+    symbol: string; // default: XBTUSD
+    amount: number; // format: double
+    pendingDebit: number; // format: double
+    realisedPnl: number; // format: double
+    walletBalance: number; // format: double
+    unrealisedPnl: number; // format: double
+    marginBalance: number; // format: double
+}
+
+/**
+ * Get the current user staking amount in vertical format.
+ */
+export interface StakingRecord {
+    account: number; // format: double
+    amount: number; // format: double
+    currency: string; // default: XBt
 }
 
 export interface AccessToken {
+    updated: string; // format: date-time
+    authorizedAccounts: any; // default: {"margin":{"read":[]},"order":{"read":[],"write":[]},"execution":{"read":[]},"position":{"read":[]},"internalTransfer":{"write":[]},"transferTakeover":{"write":[]},"owner":[]}
     id: string;
     ttl: number; // format: double, default: 1209600
     created: string; // format: date-time
@@ -592,27 +605,73 @@ export interface QuoteFillRatio {
 }
 
 /**
+ * Hourly Quote Value Ratio Statistic
+ */
+export interface QuoteValueRatio {
+    timestamp: string; // format: date-time
+    account: number; // format: double
+    symbol: string;
+    quoteCount: number; // format: double
+    volumeXBT: number; // format: double
+    QVR: number; // format: double
+    id: number; // format: double
+}
+
+/**
+ * 30 days USD average trading volume
+ */
+export interface TradingVolume {
+    advUsd: number; // format: double
+    advUsdSpot: number; // format: double
+    advUsdContract: number; // format: double
+}
+
+/**
  * Account Operations
  */
 export interface User {
     id: number; // format: int32
-    ownerId: number; // format: int32
     firstname: string;
     lastname: string;
     username: string;
+    accountName: string;
+    isUser: boolean; // default: true
     email: string;
+    dateOfBirth: string;
     phone: string;
     created: string; // format: date-time
     lastUpdated: string; // format: date-time
     preferences: UserPreferences; // default: {}
     TFAEnabled: string;
     affiliateID: string; // maxLength: 6
-    pgpPubKey: string; // maxLength: 16384
-    pgpPubKeyCreated: string; // format: date-time
     country: string; // maxLength: 3
     geoipCountry: string; // maxLength: 2
     geoipRegion: string; // maxLength: 2
+    firstTradeTimestamp: string; // format: date-time
+    firstDepositTimestamp: string; // format: date-time
+    isElite: boolean;
     typ: string;
+}
+
+/**
+ * Account information
+ */
+export interface Account {
+    account: number; // format: int64
+    state: string;
+    typ: string;
+    settlementFeeDiscount: number; // format: double
+    insuranceFeeDiscount: number; // format: double
+    referralDiscount: number; // format: double
+    referrerAccount: number; // format: int64
+    affiliatePayout: number; // format: double
+    affiliateDiscount: number; // format: double
+    isSuspended: boolean;
+    marginingMode: string;
+    timeoutTimestamp: string; // format: date-time
+    makerFeeDiscount: number; // format: double
+    takerFeeDiscount: number; // format: double
+    timestamp: string; // format: date-time
 }
 
 export interface UserCommissionsBySymbol {
@@ -622,44 +681,51 @@ export interface Margin {
     account: number; // format: int64
     currency: string;
     riskLimit: number; // format: int64
-    prevState: string;
     state: string;
-    action: string;
     amount: number; // format: int64
-    pendingCredit: number; // format: int64
-    pendingDebit: number; // format: int64
-    confirmedDebit: number; // format: int64
     prevRealisedPnl: number; // format: int64
-    prevUnrealisedPnl: number; // format: int64
     grossComm: number; // format: int64
     grossOpenCost: number; // format: int64
     grossOpenPremium: number; // format: int64
     grossExecCost: number; // format: int64
     grossMarkValue: number; // format: int64
     riskValue: number; // format: int64
-    taxableMargin: number; // format: int64
     initMargin: number; // format: int64
     maintMargin: number; // format: int64
-    sessionMargin: number; // format: int64
     targetExcessMargin: number; // format: int64
-    varMargin: number; // format: int64
     realisedPnl: number; // format: int64
     unrealisedPnl: number; // format: int64
-    indicativeTax: number; // format: int64
-    unrealisedProfit: number; // format: int64
-    syntheticMargin: number; // format: int64
     walletBalance: number; // format: int64
     marginBalance: number; // format: int64
-    marginBalancePcnt: number; // format: double
     marginLeverage: number; // format: double
     marginUsedPcnt: number; // format: double
     excessMargin: number; // format: int64
-    excessMarginPcnt: number; // format: double
     availableMargin: number; // format: int64
     withdrawableMargin: number; // format: int64
+    makerFeeDiscount: number; // format: double
+    takerFeeDiscount: number; // format: double
     timestamp: string; // format: date-time
-    grossLastValue: number; // format: int64
-    commission: number; // format: double
+    foreignMarginBalance: number; // format: int64
+    foreignRequirement: number; // format: int64
+}
+
+export interface CollateralSupportAgreement {
+    csaID: string;
+    account: number; // format: int64
+    currency: string;
+    amount: number; // format: int64
+    minAmount: number; // format: int64
+    threshold: number; // format: int64
+    mmRatioMarginCall: number; // format: int64
+    mmRatioLiquidation: number; // format: int64
+    startTime: string;
+    maturityTime: string;
+    maturityInstruction: string;
+    csaStatus: string;
+    requester: string;
+    clientDetails: string;
+    text: string;
+    timestamp: string;
 }
 
 /**
@@ -677,7 +743,7 @@ export interface CommunicationToken {
  */
 export interface UserEvent {
     id: number; // format: double
-    type: 'apiKeyCreated' | 'deleverageExecution' | 'depositConfirmed' | 'depositPending' | 'banZeroVolumeApiUser' | 'liquidationOrderPlaced' | 'login' | 'pgpMaskedEmail' | 'pgpTestEmail' | 'passwordChanged' | 'positionStateLiquidated' | 'positionStateWarning' | 'resetPasswordConfirmed' | 'resetPasswordRequest' | 'transferCanceled' | 'transferCompleted' | 'transferReceived' | 'transferRequested' | 'twoFactorDisabled' | 'twoFactorEnabled' | 'withdrawalCanceled' | 'withdrawalCompleted' | 'withdrawalConfirmed' | 'withdrawalRequested' | 'addressSkipConfirmRequested' | 'addressSkipConfirmVerified' | 'verify';
+    type: 'apiKeyCreated' | 'deleverageExecution' | 'depositConfirmed' | 'depositPending' | 'banZeroVolumeApiUser' | 'liquidationOrderPlaced' | 'login' | 'existingAccountRegistrationAttempt' | 'passwordChanged' | 'positionStateLiquidated' | 'positionStateWarning' | 'resetPasswordConfirmed' | 'resetPasswordRequest' | 'tradingBotStopped' | 'transferCanceled' | 'transferCompleted' | 'transferReceived' | 'transferRequested' | 'twoFactorDisabled' | 'twoFactorEnabled' | 'withdrawalCanceled' | 'withdrawalCompleted' | 'withdrawalConfirmed' | 'withdrawalRequested' | 'addressCreated' | 'addressRemoved' | 'addressVerified' | 'addressSkipConfirmRequested' | 'addressSkipConfirmVerified' | 'addressCooldownUpdated' | 'addressConfigUpdated' | 'verify' | 'restrictedAccount' | 'unrestrictedAccount' | 'disabledAccount' | 'enabledAccount' | 'role:roleMappingDestroy' | 'role:chatBanned' | 'role:withdrawalBanned' | 'role:orderBanned' | 'role:apiBanned' | 'role:restrictedJurisdictionPrivilege';
     status: 'success' | 'failure';
     userId: number; // format: double
     createdById: number; // format: double
@@ -689,34 +755,170 @@ export interface UserEvent {
     created: string; // format: date-time
 }
 
+export interface AssetsConfig {
+    asset: string; // default: XBT
+    currency: string; // default: XBt
+    majorCurrency: string; // default: XBT
+    name: string; // default: Bitcoin
+    currencyType: string; // default: Crypto
+    scale: number; // format: double, default: 8
+    enabled: boolean; // default: true
+    isMarginCurrency: boolean; // default: true
+    memoRequired: boolean;
+    networks: AssetsConfigNetworkItem[];
+}
+
+export interface NetworksConfig {
+    network: string; // default: eth
+    name: string; // default: Ethereum
+    currency: string; // default: Gwei
+    networkSymbol: string; // default: ETH
+    transactionExplorer: string; // default: https://etherscan.io/tx/
+    tokenExplorer: string; // default: https://etherscan.io/token/
+    depositConfirmations: number; // format: int32
+    enabled: boolean; // default: true
+}
+
+export interface Address {
+    id: number; // format: int32
+    currency: string;
+    created: string; // format: date-time
+    userId: number; // format: double
+    address: string;
+    name: string;
+    note: string;
+    skipConfirm: boolean;
+    skipConfirmVerified: boolean;
+    skip2FA: boolean;
+    skip2FAVerified: boolean;
+    network: string;
+    memo: string;
+    cooldownExpires: string; // format: date-time
+    verified: boolean;
+}
+
+export interface AddressConfig {
+    id: number; // format: int32
+    whitelist: boolean;
+    created: string; // format: date-time
+    disabled: string; // format: date-time
+    userId: number; // format: double
+    defaultCooldown: number; // format: double
+    frozen: boolean;
+}
+
+export interface Guild {
+    id: number; // format: int32
+    created: string; // format: date-time
+    updated: string; // format: date-time
+    archived: boolean;
+    name: string;
+    imgUrl: string;
+    mobileHeroImgUrl: string;
+    emoji: string;
+    logoUrl: string;
+    description: string;
+    chatChannelId: number; // format: double
+    isPrivate: boolean;
+    affiliateId: string;
+    potDistributionPreferences: any;
+    socials: any;
+    deleted: boolean;
+}
+
+/**
+ * Proof of Reserves/Liabilities
+ */
+export interface Porl {
+    account: number; // format: int32
+    nonce: string;
+    accountNonce: string;
+    total: number; // format: double
+    balance: number; // format: double
+    filename: string;
+    height: number; // format: double
+    created: string; // format: date-time
+}
+
+export interface ReferralCode {
+    id: string;
+    userId: number; // format: double
+    code: string;
+    details: any; // default: {}
+    created: string; // format: date-time
+    modified: string; // format: date-time
+    isDefault: boolean;
+    isPrimary: boolean;
+}
+
 export interface UserPreferences {
     alertOnLiquidations: boolean;
     animationsEnabled: boolean;
     announcementsLastSeen: string; // format: date-time
+    botsAdvancedMode: boolean;
+    botVideosHidden: boolean;
     chatChannelID: number; // format: double
     colorTheme: string;
     currency: string;
     debug: boolean;
     disableEmails: string[];
     disablePush: string[];
+    displayCorpEnrollUpsell: boolean;
+    equivalentCurrency: string;
+    features: string[];
+    favourites: string[];
+    favouritesAssets: string[];
+    favouritesOrdered: string[];
+    favouriteBots: string[];
+    favouriteContracts: string[];
+    hasSetTradingCurrencies: boolean;
     hideConfirmDialogs: string[];
     hideConnectionModal: boolean;
     hideFromLeaderboard: boolean;
-    hideNameFromLeaderboard: boolean; // default: true
+    hideNameFromLeaderboard: boolean;
+    hidePnlInGuilds: boolean;
+    hideRoiInGuilds: boolean;
     hideNotifications: string[];
+    hidePhoneConfirm: boolean;
+    guidesShownVersion: number; // format: int32
+    isSensitiveInfoVisible: boolean;
+    isWalletZeroBalanceHidden: boolean;
     locale: string; // default: en-US
+    localeSetTime: number; // format: double
+    marginPnlRow: string;
+    marginPnlRowKind: string;
+    mobileLocale: string;
     msgsSeen: string[];
+    notifications: any;
+    optionsBeta: boolean;
     orderBookBinning: any;
     orderBookType: string;
     orderClearImmediate: boolean;
     orderControlsPlusMinus: boolean;
+    orderInputType: string;
+    platformLayout: string;
+    selectedFiatCurrency: string;
+    showChartBottomToolbar: boolean;
     showLocaleNumbers: boolean; // default: true
     sounds: string[];
+    spacingPreference: string;
     strictIPCheck: boolean;
     strictTimeout: boolean; // default: true
     tickerGroup: string;
     tickerPinned: boolean;
     tradeLayout: string;
+    userColor: string;
+    videosSeen: string[];
+}
+
+export interface AssetsConfigNetworkItem {
+    asset: string; // default: BTC
+    tokenAddress: string;
+    depositEnabled: boolean; // default: true
+    withdrawalEnabled: boolean; // default: true
+    withdrawalFee: number; // format: double
+    minFee: number; // format: double
+    maxFee: number; // format: double
 }
 
 export interface AnnouncementQuery {
@@ -733,6 +935,11 @@ export interface ApiKeyQuery {
      * If true, will sort results newest first.
      */
     reverse?: boolean; // DEFAULT: false
+}
+
+export interface ChatPinnedQuery {
+
+    channelID: number;
 }
 
 export interface ChatQuery {
@@ -753,9 +960,9 @@ export interface ChatQuery {
     reverse?: boolean; // DEFAULT: true
 
     /**
-     * Channel id. GET /chat/channels for ids. Leave blank for all.
+     * Channel id. GET /chat/channels for ids. Global English by default
      */
-    channelID?: number;
+    channelID?: number; // DEFAULT: 1
 }
 
 export interface ChatPost {
@@ -774,6 +981,8 @@ export interface ExecutionQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -818,9 +1027,21 @@ export interface ExecutionQuery {
 export interface ExecutionTradeHistoryQuery {
 
     /**
+     * AccountId fetching the trade history, must be a paired account with main user.
+     */
+    targetAccountId?: number;
+
+    /**
+     * AccountIds fetching the trade history, must be a paired account with main user. Can be wildcard * to get all accounts linked to the authenticated user
+     */
+    targetAccountIds?: string;
+
+    /**
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -868,6 +1089,8 @@ export interface FundingQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -915,6 +1138,8 @@ export interface InstrumentQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -961,10 +1186,10 @@ export interface InstrumentCompositeIndexQuery {
     /**
      * The composite index symbol.
      */
-    symbol?: string; // DEFAULT: .XBT
+    symbol?: string; // DEFAULT: .BXBT
 
     /**
-     * Generic table filter. Send JSON key/value pairs, such as `{"key": "value"}`. You can key on individual fields, and do more advanced querying on timestamps. See the [Timestamp Docs](https://www.bitmex.com/app/restAPI#Timestamp-Filters) for more details.
+     * Generic table filter. Send JSON key/value pairs, such as `{"key": "value"}`.
      */
     filter?: string;
 
@@ -1001,14 +1226,29 @@ export interface InstrumentCompositeIndexQuery {
     endTime?: string;
 }
 
+export interface InstrumentUsdVolumeQuery {
+
+    /**
+     * Filter by symbol.
+     */
+    symbol?: string;
+
+    /**
+     * Array of column names to fetch.
+     */
+    columns?: string;
+}
+
 export interface InsuranceQuery {
 
     /**
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
-    symbol?: string;
+    currency?: string;
 
     /**
      * Generic table filter. Send JSON key/value pairs, such as `{"key": "value"}`. You can key on individual fields, and do more advanced querying on timestamps. See the [Timestamp Docs](https://www.bitmex.com/app/restAPI#Timestamp-Filters) for more details.
@@ -1062,6 +1302,8 @@ export interface LiquidationQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -1109,6 +1351,8 @@ export interface OrderQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -1168,7 +1412,7 @@ export interface OrderPost {
     simpleOrderQty?: number;
 
     /**
-     * Order quantity in units of the instrument (i.e. contracts).
+     * Order quantity in units of the instrument (i.e. contracts, for spot it is base currency in minor currency for spot (e.g. XBt quantity for XBT)).
      */
     orderQty?: number;
 
@@ -1193,7 +1437,7 @@ export interface OrderPost {
     clOrdID?: string;
 
     /**
-     * Deprecated: linked orders are not supported after 2018/11/10.
+     * Optional Client Order Link ID for contingent orders
      */
     clOrdLinkID?: string;
 
@@ -1203,9 +1447,9 @@ export interface OrderPost {
     pegOffsetValue?: number;
 
     /**
-     * Optional peg price type. Valid options: LastPeg, MidPricePeg, MarketPeg, PrimaryPeg, TrailingStopPeg.
+     * Optional peg price type. Valid options: MarketPeg, PrimaryPeg, TrailingStopPeg.
      */
-    pegPriceType?: 'LastPeg' | 'MidPricePeg' | 'MarketPeg' | 'PrimaryPeg' | 'TrailingStopPeg';
+    pegPriceType?: 'MarketPeg' | 'PrimaryPeg' | 'TrailingStopPeg';
 
     /**
      * Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged. Defaults to 'Limit' when `price` is specified. Defaults to 'Stop' when `stopPx` is specified. Defaults to 'StopLimit' when `price` and `stopPx` are specified.
@@ -1218,14 +1462,14 @@ export interface OrderPost {
     timeInForce?: 'Day' | 'GoodTillCancel' | 'ImmediateOrCancel' | 'FillOrKill';
 
     /**
-     * Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly, Fixed. 'AllOrNone' instruction requires `displayQty` to be 0. 'MarkPrice', 'IndexPrice' or 'LastPrice' instruction valid for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders.
+     * Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly, Fixed, LastWithinMark. 'AllOrNone' instruction requires `displayQty` to be 0. 'MarkPrice', 'IndexPrice' or 'LastPrice' instruction valid for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders. 'LastWithinMark' instruction valid for 'Stop' and 'StopLimit' with instruction 'LastPrice'. IndexPrice, LastWithMark, Close and ReduceOnly are not applicable to spot trading symbols.
      */
-    execInst?: 'ParticipateDoNotInitiate' | 'AllOrNone' | 'MarkPrice' | 'IndexPrice' | 'LastPrice' | 'Close' | 'ReduceOnly' | 'Fixed';
+    execInst?: 'ParticipateDoNotInitiate' | 'AllOrNone' | 'MarkPrice' | 'IndexPrice' | 'LastPrice' | 'Close' | 'ReduceOnly' | 'Fixed' | 'LastWithinMark';
 
     /**
-     * Deprecated: linked orders are not supported after 2018/11/10.
+     * Optional contingency type for use with `clOrdLinkID`. Valid options: OneCancelsTheOther, OneTriggersTheOther.
      */
-    contingencyType?: string;
+    contingencyType?: 'OneCancelsTheOther' | 'OneTriggersTheOther';
 
     /**
      * Optional order annotation. e.g. 'Take profit'.
@@ -1256,7 +1500,7 @@ export interface OrderPut {
     simpleOrderQty?: number;
 
     /**
-     * Optional order quantity in units of the instrument (i.e. contracts).
+     * Optional order quantity in units of the instrument (i.e. contracts, for spot it is the base currency in minor currency (e.g. XBt quantity for XBT)).
      */
     orderQty?: number;
 
@@ -1266,7 +1510,7 @@ export interface OrderPut {
     simpleLeavesQty?: number;
 
     /**
-     * Optional leaves quantity in units of the instrument (i.e. contracts). Useful for amending partially filled orders.
+     * Optional leaves quantity in units of the instrument (i.e. contracts, for spot it is the base currency in minor currency (e.g. XBt quantity for XBT)). Useful for amending partially filled orders.
      */
     leavesQty?: number;
 
@@ -1309,22 +1553,6 @@ export interface OrderDelete {
     text?: string;
 }
 
-export interface OrderBulkPost {
-
-    /**
-     * An array of orders.
-     */
-    orders?: string;
-}
-
-export interface OrderBulkPut {
-
-    /**
-     * An array of orders.
-     */
-    orders?: string;
-}
-
 export interface OrderClosePositionPost {
 
     /**
@@ -1339,6 +1567,11 @@ export interface OrderClosePositionPost {
 }
 
 export interface OrderAllDelete {
+
+    /**
+     * AccountIds to cancel all orders, must be a paired account with main user. Also accepts wildcard, [*], this will cancel all orders for all accounts. the authenticated user has order write permissions for.
+     */
+    targetAccountIds?: string;
 
     /**
      * Optional symbol. If provided, only cancels orders for that symbol.
@@ -1419,6 +1652,11 @@ export interface PositionRiskLimitPost {
      * New Risk Limit, in Satoshis.
      */
     riskLimit: number;
+
+    /**
+     * AccountId for the position that the risk limit would be updated on, must be a paired account with main user.
+     */
+    targetAccountId?: number;
 }
 
 export interface PositionTransferMarginPost {
@@ -1432,6 +1670,11 @@ export interface PositionTransferMarginPost {
      * Amount to transfer, in Satoshis. May be negative.
      */
     amount: number;
+
+    /**
+     * AccountId for the position that the margin would be transfered to, must be a paired account with main user.
+     */
+    targetAccountId?: number;
 }
 
 export interface PositionLeveragePost {
@@ -1445,6 +1688,137 @@ export interface PositionLeveragePost {
      * Leverage value. Send a number between 0.01 and 100 to enable isolated margin with a fixed leverage. Send 0 to enable cross margin.
      */
     leverage: number;
+
+    /**
+     * AccountId for the position that the leverage would be changed on, must be a paired account with main user.
+     */
+    targetAccountId?: number;
+}
+
+export interface PositionCrossLeveragePost {
+
+    /**
+     * Symbol of position to adjust.
+     */
+    symbol: string;
+
+    /**
+     * Leverage value. Send a number between 0.01 and 100 to enable isolated margin with a fixed leverage. Send 0 to enable cross margin.
+     */
+    leverage: number;
+
+    /**
+     * AccountId for the position that the leverage would be changed on, must be a paired account with main user.
+     */
+    targetAccountId?: number;
+}
+
+export interface QuoteQuery {
+
+    /**
+     * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
+     *
+     * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
+     */
+    symbol?: string;
+
+    /**
+     * Generic table filter. Send JSON key/value pairs, such as `{"key": "value"}`. You can key on individual fields, and do more advanced querying on timestamps. See the [Timestamp Docs](https://www.bitmex.com/app/restAPI#Timestamp-Filters) for more details.
+     */
+    filter?: string;
+
+    /**
+     * Array of column names to fetch. If omitted, will return all columns.
+     *
+     * Note that this method will always return item keys, even when not specified, so you may receive more columns that you expect.
+     */
+    columns?: string;
+
+    /**
+     * Number of results to fetch. Must be a positive integer.
+     */
+    count?: number; // DEFAULT: 100
+
+    /**
+     * Starting point for results.
+     */
+    start?: number; // DEFAULT: 0
+
+    /**
+     * If true, will sort results newest first.
+     */
+    reverse?: boolean; // DEFAULT: false
+
+    /**
+     * Starting date filter for results.
+     */
+    startTime?: string;
+
+    /**
+     * Ending date filter for results.
+     */
+    endTime?: string;
+}
+
+export interface QuoteBucketedQuery {
+
+    /**
+     * Time interval to bucket by. Available options: [1m,5m,1h,1d].
+     */
+    binSize?: '1m' | '5m' | '1h' | '1d'; // DEFAULT: 1m
+
+    /**
+     * If true, will send in-progress (incomplete) bins for the current time period.
+     */
+    partial?: boolean; // DEFAULT: false
+
+    /**
+     * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
+     *
+     * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
+     */
+    symbol?: string;
+
+    /**
+     * Generic table filter. Send JSON key/value pairs, such as `{"key": "value"}`. You can key on individual fields, and do more advanced querying on timestamps. See the [Timestamp Docs](https://www.bitmex.com/app/restAPI#Timestamp-Filters) for more details.
+     */
+    filter?: string;
+
+    /**
+     * Array of column names to fetch. If omitted, will return all columns.
+     *
+     * Note that this method will always return item keys, even when not specified, so you may receive more columns that you expect.
+     */
+    columns?: string;
+
+    /**
+     * Number of results to fetch. Must be a positive integer.
+     */
+    count?: number; // DEFAULT: 100
+
+    /**
+     * Starting point for results.
+     */
+    start?: number; // DEFAULT: 0
+
+    /**
+     * If true, will sort results newest first.
+     */
+    reverse?: boolean; // DEFAULT: false
+
+    /**
+     * Starting date filter for results.
+     */
+    startTime?: string;
+
+    /**
+     * Ending date filter for results.
+     */
+    endTime?: string;
 }
 
 export interface SchemaQuery {
@@ -1461,6 +1835,8 @@ export interface SettlementQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -1508,6 +1884,8 @@ export interface TradeQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -1565,6 +1943,8 @@ export interface TradeBucketedQuery {
      * Instrument symbol. Send a bare series (e.g. XBT) to get data for the nearest expiring contract in that series.
      *
      * You can also send a timeframe, e.g. `XBT:quarterly`. Timeframes are `nearest`, `daily`, `weekly`, `monthly`, `quarterly`, `biquarterly`, and `perpetual`.
+     *
+     * Symbols are case-insensitive.
      */
     symbol?: string;
 
@@ -1608,32 +1988,82 @@ export interface TradeBucketedQuery {
 
 export interface UserDepositAddressQuery {
 
-    currency?: string; // DEFAULT: XBt
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>
+     */
+    currency: string;
+
+    /**
+     * The `network` parameter is used to indicate which blockchain you would like to deposit from. The acceptable value in the `network` parameter for each currency can be found from `networks.asset` from `GET /wallet/assets`.
+     */
+    network: string;
+}
+
+export interface UserDepositAddressInformationQuery {
+
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>
+     */
+    currency: string;
+
+    /**
+     * The `network` parameter is used to indicate which blockchain you would like to deposit from. The acceptable value in the `network` parameter for each currency can be found from `networks.asset` from `GET /wallet/assets`.
+     */
+    network: string;
 }
 
 export interface UserWalletQuery {
 
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>. For all currencies specify "all"
+     */
     currency?: string; // DEFAULT: XBt
 }
 
 export interface UserWalletHistoryQuery {
 
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>. For all currencies specify "all"
+     */
     currency?: string; // DEFAULT: XBt
 
     /**
-     * Number of results to fetch.
+     * Number of results to fetch. Fetch results from start to start + count. Max: 10,000 rows.
      */
-    count?: number; // DEFAULT: 100
+    count?: number; // DEFAULT: 10000
 
     /**
-     * Starting point for results.
+     * Starting point for results, integer. Default 0.
      */
     start?: number; // DEFAULT: 0
+
+    /**
+     * AccountId to view the history of, must be a paired account with the authorised user requesting the history.
+     */
+    targetAccountId?: number;
+
+    /**
+     * Start from the latest transaction record. Default true.
+     */
+    reverse?: boolean; // DEFAULT: true
 }
 
 export interface UserWalletSummaryQuery {
 
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>. For all currencies specify "all"
+     */
     currency?: string; // DEFAULT: XBt
+
+    /**
+     * Start time for the summary
+     */
+    startTime?: string;
+
+    /**
+     * End time for the summary
+     */
+    endTime?: string;
 }
 
 export interface UserExecutionHistoryQuery {
@@ -1643,22 +2073,79 @@ export interface UserExecutionHistoryQuery {
     timestamp?: string; // DEFAULT: 2017-02-13T12:00:00.000Z
 }
 
-export interface UserMinWithdrawalFeeQuery {
+export interface UserStakingQuery {
 
-    currency?: string; // DEFAULT: XBt
+    currency?: string;
+}
+
+export interface UserUnstakingRequestsQuery {
+
+    status: string;
+}
+
+export interface UserUnstakingRequestsPost {
+
+    symbol: string;
+
+    amount: number;
+}
+
+export interface UserUnstakingRequestsDelete {
+
+    redemptionID: string;
+}
+
+export interface UserStakingInstrumentsQuery {
+
+    symbol?: string;
+
+    currency?: string;
+}
+
+export interface UserStakingTiersQuery {
+
+    currency: string;
+}
+
+export interface UserWalletTransferPost {
+
+    /**
+     * Currency you're transfering. Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>
+     */
+    currency: string;
+
+    /**
+     * Amount of transfer.
+     */
+    amount: number;
+
+    /**
+     * AccountID to send the transfer from. Must be paired account with the authenticated user.
+     */
+    fromAccountId?: number;
+
+    /**
+     * AccountId to send the transfer to, must be a paired account with the user sending the transfer.
+     */
+    targetAccountId: number;
 }
 
 export interface UserRequestWithdrawalPost {
 
     /**
-     * 2FA token. Required if 2FA is enabled on your account.
+     * 2FA token. Required for all external withdrawals unless the destination is a saved address with `skip2FA` configured.
      */
     otpToken?: string;
 
     /**
-     * Currency you're withdrawing. Options: `XBt`
+     * Currency you're withdrawing. Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>
      */
-    currency?: 'XBt'; // DEFAULT: XBt
+    currency?: string; // DEFAULT: XBt
+
+    /**
+     * The `network` parameter is used to indicate which blockchain you would like to withdraw from. The acceptable value in the `network` parameter for each currency can be found from `networks.asset` from `GET /api/v1/wallet/assets`.
+     */
+    network: string;
 
     /**
      * Amount of withdrawal currency.
@@ -1671,12 +2158,17 @@ export interface UserRequestWithdrawalPost {
     address?: string;
 
     /**
-     * ID of the Destination Address. One of `address`, `targetUserId`, `targetUserId` has to be specified.
+     * Destination Memo. If `address`, is specified, destination Memo can also be specified. If given an `addressId` or `address` matching a saved address, the destination memo from the saved address will be used.
+     */
+    memo?: string;
+
+    /**
+     * ID of the Destination Address. One of `address`, `addressId`, `targetUserId` has to be specified.
      */
     addressId?: number;
 
     /**
-     * ID of the Target User. One of `address`, `addressId`, `targetUserId` has to be specified.
+     * ID of a linked BitMEX account. One of `address`, `addressId`, `targetUserId` has to be specified.
      */
     targetUserId?: number;
 
@@ -1689,6 +2181,11 @@ export interface UserRequestWithdrawalPost {
      * Optional annotation, e.g. 'Transfer to home wallet'.
      */
     text?: string;
+}
+
+export interface UserWithdrawalDelete {
+
+    transactID: string;
 }
 
 export interface UserCancelWithdrawalPost {
@@ -1706,9 +2203,52 @@ export interface UserConfirmEmailPost {
     token: string;
 }
 
+export interface UserAffiliateStatusQuery {
+
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>. For all currencies specify "all"
+     */
+    currency?: string; // DEFAULT: XBt
+}
+
 export interface UserCheckReferralCodeQuery {
 
     referralCode?: string;
+}
+
+export interface UserQuoteFillRatioQuery {
+
+    /**
+     * AccountId to get quote fill ratio for, must be a paired account with main user. Can be wildcard * to get all accounts linked to the authenticated user
+     */
+    targetAccountId?: number;
+}
+
+export interface UserQuoteValueRatioQuery {
+
+    /**
+     * AccountId to get quote value ratio for, must be a paired account with main user. Can be wildcard * to get all accounts linked to the authenticated user
+     */
+    targetAccountId?: number;
+}
+
+export interface UserAddSubaccountPost {
+
+    accountName: string;
+}
+
+export interface UserCreateIndependentSubaccountPost {
+
+    email: string;
+
+    accountName: string;
+}
+
+export interface UserUpdateSubaccountPost {
+
+    targetAccountId: number;
+
+    accountName: string;
 }
 
 export interface UserPreferencesPost {
@@ -1721,8 +2261,24 @@ export interface UserPreferencesPost {
     overwrite?: boolean; // DEFAULT: false
 }
 
+export interface UserMarginingModePost {
+
+    /**
+     * AccountId to update the margining mode of.
+     */
+    targetAccountId?: number;
+
+    /**
+     * Margining mode. Provide the value MultiAsset for multi-asset margining. Leave the field empty for single-asset margining
+     */
+    marginingMode?: string;
+}
+
 export interface UserMarginQuery {
 
+    /**
+     * Any currency. For all currencies, see <a href="#!/Wallet/Wallet_getAssetsConfig">asset config endpoint</a>. For all currencies specify "all"
+     */
     currency?: string; // DEFAULT: XBt
 }
 
@@ -1738,10 +2294,229 @@ export interface UserEventQuery {
     /**
      * Number of results to fetch.
      */
-    count?: number; // DEFAULT: 150
+    count?: number; // DEFAULT: 100
 
     /**
      * Cursor for pagination.
      */
     startId?: number;
+}
+
+export interface AddressPost {
+
+    /**
+     * Currency of the address. Options: `XBt`, `USDt`
+     */
+    currency?: 'XBt' | 'USDt';
+
+    /**
+     * Selected network.
+     */
+    network: string;
+
+    /**
+     * Destination Address.
+     */
+    address: string;
+
+    /**
+     * Name of the entry, eg. 'Hardware wallet'.
+     */
+    name: string;
+
+    /**
+     * Optional annotation.
+     */
+    note?: string;
+
+    /**
+     * Skip e-mail confirmations for transfers to this address. An email will be sent for confirmation to verify this setting.
+     */
+    skipConfirm?: boolean; // DEFAULT: false
+
+    /**
+     * Skip 2FA confirmations for transfers to this address. If otpToken is not provided in this request, an email will be sent to capture 2FA and verify this setting.
+     */
+    skip2FA?: boolean; // DEFAULT: false
+
+    /**
+     * Destination Memo.
+     */
+    memo?: string;
+
+    /**
+     * 2FA token. Provide to verify skip2FA or to start the cooldown period on address with whitelist setting enabled. If not provided, an email will be sent to capture 2FA.
+     */
+    otpToken?: string;
+}
+
+export interface UserAffiliatesQuery {
+
+    /**
+     * the depth of affiliates to return. Eg depth = 2 would return direct affiliates and their affiliates
+     */
+    depth?: number;
+
+    /**
+     * AccountId of Sub-Affiliate Account
+     */
+    targetAccountId?: number;
+
+    /**
+     * User id of result array to keep
+     */
+    selectUserId?: number;
+}
+
+export interface GuildPost {
+
+    /**
+     * Name of the guild, must be unique, must be at least 5 characters
+     */
+    name: string;
+
+    /**
+     * Emoji name.
+     */
+    emoji: string;
+
+    /**
+     * How much of the pot should be distributed to the guild members, must be between 0 and 100
+     */
+    potDistributionPercent: number;
+
+    /**
+     * How the pot should be distributed to the guild members, must be one of the following: ROLL_OVER, TOP_3, TOP_5, TOP_10, VOLUME_PERCENTAGE, TOP_3_BY_ADV, TOP_5_BY_ADV, TOP_10_BY_ADV, TOP_3_BY_ROI, TOP_5_BY_ROI, TOP_10_BY_ROI, RANDOM
+     */
+    potDistributionType: string;
+
+    /**
+     * Guild description, can be used to explain the guild to other users.
+     */
+    description?: string;
+
+    /**
+     * Guild twitter handle.
+     */
+    twitter?: string;
+
+    /**
+     * Guild discord link.
+     */
+    discord?: string;
+
+    /**
+     * Guild telegram link.
+     */
+    telegram?: string;
+
+    /**
+     * URL for the profile image of the guild, is used by clients to add some color to the guild, if no image is provided, a default image is used
+     */
+    imgUrl?: string;
+
+    /**
+     * Guild privacy status
+     */
+    isPrivate?: boolean;
+}
+
+export interface GuildPut {
+
+    /**
+     * Name of the guild, must be unique, must be at least 5 characters
+     */
+    name: string;
+
+    /**
+     * Emoji name.
+     */
+    emoji: string;
+
+    /**
+     * How much of the pot should be distributed to the guild members, must be between 0 and 100
+     */
+    potDistributionPercent: number;
+
+    /**
+     * How the pot should be distributed to the guild members, must be one of the following: ROLL_OVER, TOP_3, TOP_5, TOP_10, VOLUME_PERCENTAGE, TOP_3_BY_ADV, TOP_5_BY_ADV, TOP_10_BY_ADV, TOP_3_BY_ROI, TOP_5_BY_ROI, TOP_10_BY_ROI, RANDOM
+     */
+    potDistributionType: string;
+
+    /**
+     * User ID of the guild member with order write permission for the pot
+     */
+    potTraderId?: number;
+
+    /**
+     * Guild description, can be used to explain the guild to other users.
+     */
+    description?: string;
+
+    /**
+     * Guild twitter handle.
+     */
+    twitter?: string;
+
+    /**
+     * Guild discord link.
+     */
+    discord?: string;
+
+    /**
+     * Guild telegram link.
+     */
+    telegram?: string;
+
+    /**
+     * URL for the profile image of the guild, is used by clients to add some color to the guild, if no image is provided, a default image is used
+     */
+    imgUrl?: string;
+
+    /**
+     * Guild privacy status
+     */
+    isPrivate?: boolean;
+}
+
+export interface GuildShareTradesPost {
+
+    shareTrades: boolean;
+}
+
+export interface GuildKickPost {
+
+    memberUserId: number;
+}
+
+export interface GuildJoinPost {
+
+    code: string;
+}
+
+export interface ReferralCodePost {
+
+    data: undefined;
+}
+
+export interface ReferralCodeCheckGet {
+
+    code: string;
+}
+
+export interface ReferralCodePut {
+
+    id: number;
+
+    data: undefined;
+}
+
+export interface ReferralCodeDelete {
+
+    id: number;
+}
+
+export interface ReferralCodeGet {
+
+    id: number;
 }

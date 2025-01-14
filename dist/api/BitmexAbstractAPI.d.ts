@@ -12,6 +12,7 @@ export declare abstract class BitmexAbstractAPI {
     protected request<T>(method: APIMethods, endpoint: string, opts: {
         qs?: any;
         form?: any;
+        body?: any;
     }, auth?: boolean): Promise<T>;
     private wait;
 }

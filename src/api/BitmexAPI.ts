@@ -12,14 +12,14 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get site announcements.
          */
         get: async (qs: BITMEX.AnnouncementQuery = {}) =>
-            this.request<BITMEX.Announcement[]>('GET', '/announcement', { qs }),
+            this.request<any>('GET', `/announcement`, { qs }),
 
         /**
          * @Authorized
          * Get urgent (banner) announcements.
          */
         getUrgent: async () =>
-            this.request<BITMEX.Announcement[]>('GET', '/announcement/urgent', {}, true),
+            this.request<any>('GET', `/announcement/urgent`, {}, true),
     };
 
     public APIKey = {
@@ -29,35 +29,41 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get your API Keys.
          */
         get: async (qs: BITMEX.ApiKeyQuery = {}) =>
-            this.request<BITMEX.APIKey[]>('GET', '/apiKey', { qs }, true),
+            this.request<any>('GET', `/apiKey`, { qs }, true),
     };
 
     public Chat = {
 
         /**
+         * Get pinned message for a channel.
+         */
+        getPinnedMessage: async (qs: BITMEX.ChatPinnedQuery) =>
+            this.request<BITMEX.PinnedMessage>('GET', `/chat/pinned`, { qs }),
+
+        /**
          * Get chat messages.
          */
         get: async (qs: BITMEX.ChatQuery = {}) =>
-            this.request<BITMEX.Chat[]>('GET', '/chat', { qs }),
+            this.request<any>('GET', `/chat`, { qs }),
 
         /**
          * @Authorized
          * Send a chat message.
          */
         new: async (form: BITMEX.ChatPost) =>
-            this.request<BITMEX.Chat>('POST', '/chat', { form }, true),
+            this.request<BITMEX.Chat>('POST', `/chat`, { form }, true),
 
         /**
          * Get available channels.
          */
         getChannels: async () =>
-            this.request<BITMEX.ChatChannel[]>('GET', '/chat/channels', {}),
+            this.request<any>('GET', `/chat/channels`, {}),
 
         /**
          * Get connected users.Returns an array with browser users in the first position and API users (bots) in the second position.
          */
         getConnected: async () =>
-            this.request<BITMEX.ConnectedUsers>('GET', '/chat/connected', {}),
+            this.request<BITMEX.ConnectedUsers>('GET', `/chat/connected`, {}),
     };
 
     public Execution = {
@@ -73,14 +79,14 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * See [the FIX Spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_8_8.html) for explanations of these fields.
          */
         get: async (qs: BITMEX.ExecutionQuery = {}) =>
-            this.request<BITMEX.Execution[]>('GET', '/execution', { qs }, true),
+            this.request<any>('GET', `/execution`, { qs }, true),
 
         /**
          * @Authorized
-         * Get all balance-affecting executions. This includes each trade, insurance charge, and settlement.
+         * Get all balance-affecting executions.
          */
         getTradeHistory: async (qs: BITMEX.ExecutionTradeHistoryQuery = {}) =>
-            this.request<BITMEX.Execution[]>('GET', '/execution/tradeHistory', { qs }, true),
+            this.request<any>('GET', `/execution/tradeHistory`, { qs }, true),
     };
 
     public Funding = {
@@ -89,51 +95,71 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get funding history.
          */
         get: async (qs: BITMEX.FundingQuery = {}) =>
-            this.request<BITMEX.Funding[]>('GET', '/funding', { qs }),
+            this.request<any>('GET', `/funding`, { qs }),
     };
 
     public Instrument = {
 
         /**
-         * Get instruments.This returns all instruments and indices, including those that have settled or are unlisted. Use this endpoint if you want to query for individual instruments or use a complex filter. Use `/instrument/active` to return active instruments, or use a filter like `{"state": "Open"}`.
+         * Get instruments.This returns all instruments and indices, including those that have settled or are unlisted.
+         * Use this endpoint if you want to query for individual instruments or use a complex filter.
+         * Use `/instrument/active` to return active instruments, or use a filter like `{"state": "Open"}`.
+         *
+         * The instrument type is specified by the `typ` param.
+         *
+         * - Perpetual Contracts - `FFWCSX`
+         * - Perpetual Contracts (FX underliers) - `FFWCSF`
+         * - Spot - `IFXXXP`
+         * - Futures - `FFCCSX`
+         * - BitMEX Basket Index - `MRBXXX`
+         * - BitMEX Crypto Index - `MRCXXX`
+         * - BitMEX FX Index - `MRFXXX`
+         * - BitMEX Lending/Premium Index - `MRRXXX`
+         * - BitMEX Volatility Index - `MRIXXX`
          */
         get: async (qs: BITMEX.InstrumentQuery = {}) =>
-            this.request<BITMEX.Instrument[]>('GET', '/instrument', { qs }),
+            this.request<any>('GET', `/instrument`, { qs }),
 
         /**
          * Get all active instruments and instruments that have expired in <24hrs.
          */
         getActive: async () =>
-            this.request<BITMEX.Instrument[]>('GET', '/instrument/active', {}),
+            this.request<any>('GET', `/instrument/active`, {}),
 
         /**
          * Get all price indices.
          */
         getIndices: async () =>
-            this.request<BITMEX.Instrument[]>('GET', '/instrument/indices', {}),
+            this.request<any>('GET', `/instrument/indices`, {}),
 
         /**
          * Helper method. Gets all active instruments and all indices. This is a join of the result of /indices and /active.
          */
         getActiveAndIndices: async () =>
-            this.request<BITMEX.Instrument[]>('GET', '/instrument/activeAndIndices', {}),
+            this.request<any>('GET', `/instrument/activeAndIndices`, {}),
 
         /**
          * Return all active contract series and interval pairs.This endpoint is useful for determining which pairs are live. It returns two arrays of   strings. The first is intervals, such as `["XBT:perpetual", "XBT:quarterly", "XBT:biquarterly", "ETH:quarterly", ...]`. These identifiers are usable in any query's `symbol` param. The second array is the current resolution of these intervals. Results are mapped at the same index.
          */
         getActiveIntervals: async () =>
-            this.request<BITMEX.InstrumentInterval>('GET', '/instrument/activeIntervals', {}),
+            this.request<BITMEX.InstrumentInterval>('GET', `/instrument/activeIntervals`, {}),
 
         /**
          * Show constituent parts of an index.Composite indices are built from multiple external price sources.
          *
-         * Use this endpoint to get the underlying prices of an index. For example, send a `symbol` of `.XBT` to
-         * get the ticks and weights of the constituent exchanges that build the ".XBT" index.
+         * Use this endpoint to get the underlying prices of an index. For example, send a `symbol` of `.BXBT` to
+         * get the ticks and weights of the constituent exchanges that build the ".BXBT" index.
          *
          * A tick with reference `"BMI"` and weight `null` is the composite index tick.
          */
         getCompositeIndex: async (qs: BITMEX.InstrumentCompositeIndexQuery = {}) =>
-            this.request<BITMEX.IndexComposite[]>('GET', '/instrument/compositeIndex', { qs }),
+            this.request<any>('GET', `/instrument/compositeIndex`, { qs }),
+
+        /**
+         * Get a summary of exchange statistics in USD.
+         */
+        getUsdVolume: async (qs: BITMEX.InstrumentUsdVolumeQuery = {}) =>
+            this.request<any>('GET', `/instrument/usdVolume`, { qs }),
     };
 
     public Insurance = {
@@ -142,7 +168,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get insurance fund history.
          */
         get: async (qs: BITMEX.InsuranceQuery = {}) =>
-            this.request<BITMEX.Insurance[]>('GET', '/insurance', { qs }),
+            this.request<any>('GET', `/insurance`, { qs }),
     };
 
     public Leaderboard = {
@@ -151,14 +177,14 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get current leaderboard.
          */
         get: async (qs: BITMEX.LeaderboardQuery = {}) =>
-            this.request<BITMEX.Leaderboard[]>('GET', '/leaderboard', { qs }),
+            this.request<any>('GET', `/leaderboard`, { qs }),
 
         /**
          * @Authorized
          * Get your alias on the leaderboard.
          */
         getName: async () =>
-            this.request<{ name: string; }>('GET', '/leaderboard/name', {}, true),
+            this.request<{ name: string; }>('GET', `/leaderboard/name`, {}, true),
     };
 
     public Liquidation = {
@@ -167,7 +193,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get liquidation orders.
          */
         get: async (qs: BITMEX.LiquidationQuery = {}) =>
-            this.request<BITMEX.Liquidation[]>('GET', '/liquidation', { qs }),
+            this.request<any>('GET', `/liquidation`, { qs }),
     };
 
     public GlobalNotification = {
@@ -177,7 +203,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get your current GlobalNotifications.This is an upcoming feature and currently does not return data.
          */
         get: async () =>
-            this.request<BITMEX.GlobalNotification[]>('GET', '/globalNotification', {}, true),
+            this.request<any>('GET', `/globalNotification`, {}, true),
     };
 
     public Order = {
@@ -189,7 +215,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * See <a href="http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_D_68.html">the FIX Spec</a> for explanations of these fields.
          */
         getOrders: async (qs: BITMEX.OrderQuery = {}) =>
-            this.request<BITMEX.Order[]>('GET', '/order', { qs }, true),
+            this.request<any>('GET', `/order`, { qs }, true),
 
         /**
          * @Authorized
@@ -216,28 +242,81 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * and `price`.
          * - **MarketIfTouched**: Similar to a Stop, but triggers are done in the opposite direction. Useful for Take Profit orders.
          * - **LimitIfTouched**: As above; use for Take Profit Limit orders.
+         * - **Pegged**: Pegged orders allow users to submit a limit price relative to the current market price. Specify a
+         * `pegPriceType`, and `pegOffsetValue`.
+         * - Pegged orders **must** have an `execInst` of `Fixed`. This means the limit price is set at the time the order
+         * is accepted and does not change as the reference price changes.
+         * - `PrimaryPeg`: Price is set relative to near touch price.
+         * - `MarketPeg`: Price is set relative to far touch price.
+         * - A `pegPriceType` submitted with no `ordType` is treated as a `Pegged` order.
          *
          * #### Execution Instructions
          *
          * The following `execInst`s are supported. If using multiple, separate with a comma (e.g. `LastPrice,Close`).
          *
-         * - **ParticipateDoNotInitiate**: Also known as a Post-Only order. If this order would have executed on placement,
-         * it will cancel instead.
+         * - **ParticipateDoNotInitiate**: Also known as a Post-Only order. If this order would have executed on placement, it will cancel instead.
+         * This is intended to protect you from the far touch moving towards you while the order is in transit.
+         * It is not intended for speculating on the far touch moving away after submission - we consider such behaviour abusive and monitor for it.
          * - **MarkPrice, LastPrice, IndexPrice**: Used by stop and if-touched orders to determine the triggering price.
-         * Use only one. By default, `'MarkPrice'` is used. Also used for Pegged orders to define the value of `'LastPeg'`.
-         * - **ReduceOnly**: A `'ReduceOnly'` order can only reduce your position, not increase it. If you have a `'ReduceOnly'`
+         * Use only one. By default, `MarkPrice` is used. Also used for Pegged orders to define the value of `LastPeg`. IndexPrice is not applicable to spot trading symbols.
+         * - **ReduceOnly**: A `ReduceOnly` order can only reduce your position, not increase it. If you have a `ReduceOnly`
          * limit order that rests in the order book while the position is reduced by other orders, then its order quantity will
-         * be amended down or canceled. If there are multiple `'ReduceOnly'` orders the least aggressive will be amended first.
-         * - **Close**: `'Close'` implies `'ReduceOnly'`. A `'Close'` order will cancel other active limit orders with the same side
+         * be amended down or canceled. If there are multiple `ReduceOnly` orders the least aggressive will be amended first. Not applicable to spot trading symbols.
+         * - **Close**: `Close` implies `ReduceOnly`. A `Close` order will cancel other active limit orders with the same side
          * and symbol if the open quantity exceeds the current position. This is useful for stops: by canceling these orders, a
-         * `'Close'` Stop is ensured to have the margin required to execute, and can only execute up to the full size of your
-         * position. If `orderQty` is not specified, a `'Close'` order has an `orderQty` equal to your current position's size.
+         * `Close` Stop is ensured to have the margin required to execute, and can only execute up to the full size of your
+         * position. If `orderQty` is not specified, a `Close` order has an `orderQty` equal to your current position's size. Not applicable to spot trading symbols.
          * - Note that a `Close` order without an `orderQty` requires a `side`, so that BitMEX knows if it should trigger
          * above or below the `stopPx`.
+         * - **LastWithinMark**: Used by stop orders with `LastPrice` to allow stop triggers only when:
+         * - For Sell Stop Market / Stop Limit Order
+         * - Last Price &lt= Stop Price
+         * - Last Price &gt= Mark Price × (1 - 5%)
+         * - For Buy Stop Market / Stop Limit Order:
+         * - Last Price &gt= Stop Price
+         * - Last Price &lt= Mark Price × (1 + 5%)
+         * - Not applicable to spot trading symbols.
+         * - **Fixed**: Pegged orders **must** have an `execInst` of `Fixed`. This means the limit price is set at the time
+         * the order is accepted and does not change as the reference price changes.
+         *
+         * #### Pegged Orders
+         *
+         * Pegged orders allow users to submit a limit price relative to the current market price.
+         * The limit price is set once when the order is submitted and does not change with the reference price.
+         * This order type is not intended for speculating on the far touch moving away after submission - we consider such behaviour abusive and monitor for it.
+         *
+         * Pegged orders have an `ordType` of `Pegged`, and an `execInst` of `Fixed`.
+         *
+         * A `pegPriceType` and `pegOffsetValue` must also be submitted:
+         *
+         * - `PrimaryPeg` - price is set relative to the **near touch** price
+         * - `MarketPeg` - price is set relative to the **far touch** price
+         *
+         * #### Trailing Stop Pegged Orders
+         *
+         * Use `pegPriceType` of `TrailingStopPeg` to create Trailing Stops.
+         *
+         * The price is set at submission and updates once per second if the underlying price (last/mark/index) has moved by
+         * more than 0.1%. `stopPx` then moves as the market moves away from the peg, and freezes as the market moves toward it.
+         *
+         * Use `pegOffsetValue` to set the `stopPx` of your order. The peg is set to the triggering price specified in the
+         * `execInst` (default `MarkPrice`). Use a negative offset for stop-sell and buy-if-touched orders.
+         *
+         * Requires `ordType`: `Stop`, `StopLimit`, `MarketIfTouched`, `LimitIfTouched`.
          *
          * #### Linked Orders
          *
-         * [Linked Orders are deprecated as of 2018/11/10](https://blog.bitmex.com/api_announcement/deprecation-of-contingent-orders/)
+         * Linked Orders are an advanced capability. It is very powerful, but its use requires careful coding and testing.
+         * Please follow this document carefully and use the [Testnet Exchange](https://testnet.bitmex.com) while developing.
+         *
+         * BitMEX offers four advanced Linked Order types:
+         *
+         * - **OCO**: _One Cancels the Other_. A very flexible version of the standard Stop / Take Profit technique.
+         * Multiple orders may be linked together using a single `clOrdLinkID`. Send a `contingencyType` of
+         * `OneCancelsTheOther` on the orders. The first order that fully or partially executes (or activates
+         * for `Stop` orders) will cancel all other orders with the same `clOrdLinkID`.
+         * - **OTO**: _One Triggers the Other_. Send a `contingencyType` of `'OneTriggersTheOther'` on the primary order and
+         * then subsequent orders with the same `clOrdLinkID` will be not be triggered until the primary order fully executes.
          *
          * #### Trailing Stops
          *
@@ -255,11 +334,8 @@ export class BitmexAPI extends BitmexAbstractAPI {
          *
          * #### Rate Limits
          *
-         * See the [Bulk Order Documentation](#!/Order/Order_newBulk) if you need to place multiple orders at the same time.
-         * Bulk orders require fewer risk checks in the trading engine and thus are ratelimited at **1/10** the normal rate.
-         *
-         * You can also improve your reactivity to market movements while staying under your ratelimit by using the
-         * [Amend](#!/Order/Order_amend) and [Amend Bulk](#!/Order/Order_amendBulk) endpoints. This allows you to stay
+         * You can improve your reactivity to market movements while staying under your rate limit by using the
+         * [Amend](#!/Order/Order_amend) endpoint (PUT /order). This allows you to stay
          * in the market and avoids the cancel/replace cycle.
          *
          * #### Tracking Your Orders
@@ -277,7 +353,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * ```
          */
         new: async (form: BITMEX.OrderPost) =>
-            this.request<BITMEX.Order>('POST', '/order', { form }, true),
+            this.request<BITMEX.Order>('POST', `/order`, { form }, true),
 
         /**
          * @Authorized
@@ -290,55 +366,30 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * already filled.
          *
          * > A `leavesQty` can be used to make a "Filled" order live again, if it is received within 60 seconds of the fill.
-         *
-         * Like order placement, amending can be done in bulk. Simply send a request to `PUT /api/v1/order/bulk` with
-         * a JSON body of the shape: `{"orders": [{...}, {...}]}`, each object containing the fields used in this endpoint.
          */
         amend: async (form: BITMEX.OrderPut = {}) =>
-            this.request<BITMEX.Order>('PUT', '/order', { form }, true),
+            this.request<BITMEX.Order>('PUT', `/order`, { form }, true),
 
         /**
          * @Authorized
          * Cancel order(s). Send multiple order IDs to cancel in bulk.Either an orderID or a clOrdID must be provided.
          */
         cancel: async (form: BITMEX.OrderDelete = {}) =>
-            this.request<BITMEX.Order[]>('DELETE', '/order', { form }, true),
-
-        /**
-         * @Authorized
-         * Create multiple new orders for the same symbol.This endpoint is used for placing bulk orders. Valid order types are Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, and Pegged.
-         *
-         * Each individual order object in the array should have the same properties as an individual POST /order call.
-         *
-         * This endpoint is much faster for getting many orders into the book at once. Because it reduces load on BitMEX
-         * systems, this endpoint is ratelimited at `ceil(0.1 * orders)`. Submitting 10 orders via a bulk order call
-         * will only count as 1 request, 15 as 2, 32 as 4, and so on.
-         *
-         * For now, only `application/json` is supported on this endpoint.
-         */
-        newBulk: async (form: BITMEX.OrderBulkPost = {}) =>
-            this.request<BITMEX.Order[]>('POST', '/order/bulk', { form }, true),
-
-        /**
-         * @Authorized
-         * Amend multiple orders for the same symbol.Similar to POST /amend, but with multiple orders. `application/json` only. Ratelimited at 10%.
-         */
-        amendBulk: async (form: BITMEX.OrderBulkPut = {}) =>
-            this.request<BITMEX.Order[]>('PUT', '/order/bulk', { form }, true),
+            this.request<any>('DELETE', `/order`, { form }, true),
 
         /**
          * @Authorized
          * Close a position. [Deprecated, use POST /order with execInst: 'Close']If no `price` is specified, a market order will be submitted to close the whole of your position. This will also close all other open orders in this symbol.
          */
         closePosition: async (form: BITMEX.OrderClosePositionPost) =>
-            this.request<BITMEX.Order>('POST', '/order/closePosition', { form }, true),
+            this.request<BITMEX.Order>('POST', `/order/closePosition`, { form }, true),
 
         /**
          * @Authorized
          * Cancels all of your orders.
          */
         cancelAll: async (form: BITMEX.OrderAllDelete = {}) =>
-            this.request<BITMEX.Order[]>('DELETE', '/order/all', { form }, true),
+            this.request<any>('DELETE', `/order/all`, { form }, true),
 
         /**
          * @Authorized
@@ -351,7 +402,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * This is also available via [WebSocket](https://www.bitmex.com/app/wsAPI#Dead-Mans-Switch-Auto-Cancel).
          */
         cancelAllAfter: async (form: BITMEX.OrderCancelAllAfterPost) =>
-            this.request<any>('POST', '/order/cancelAllAfter', { form }, true),
+            this.request<any>('POST', `/order/cancelAllAfter`, { form }, true),
     };
 
     public OrderBook = {
@@ -360,7 +411,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get current orderbook in vertical format.
          */
         getL2: async (qs: BITMEX.OrderBookL2Query) =>
-            this.request<BITMEX.OrderBookL2[]>('GET', '/orderBook/L2', { qs }),
+            this.request<any>('GET', `/orderBook/L2`, { qs }),
     };
 
     public Position = {
@@ -370,6 +421,8 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get your positions.This endpoint is used for retrieving position information. The fields largely follow the [FIX spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_AP_6580.html) definitions. Some selected fields are explained in more detail below.
          *
          * The fields _account_, _symbol_, _currency_ are unique to each position and form its key.
+         *
+         * Spot trading symbols returns a subset of the position fields, mainly the open order aggregates.
          *
          * - **account**: Your unique account ID.
          * - **symbol**: The contract for this position.
@@ -390,48 +443,68 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * - **currentComm**: The current commission of the position in the settlement currency of the symbol (_currency_).
          * - **realisedCost**: The realised cost of this position calculated with regard to average cost accounting.
          * - **unrealisedCost**: _currentCost_ - _realisedCost_.
-         * - **grossOpenCost**: The absolute value of your open orders for this symbol.
          * - **grossOpenPremium**: The amount your bidding above the mark price in the settlement currency of the symbol (_currency_).
          * - **markPrice**: The mark price of the symbol in _quoteCurrency_.
          * - **markValue**: The _currentQty_ at the mark price in the settlement currency of the symbol (_currency_).
          * - **homeNotional**: Value of position in units of _underlying_.
          * - **foreignNotional**: Value of position in units of _quoteCurrency_.
          * - **realisedPnl**: The negative of _realisedCost_.
-         * - **unrealisedGrossPnl**: _markValue_ - _unrealisedCost_.
          * - **unrealisedPnl**: _unrealisedGrossPnl_.
          * - **liquidationPrice**: Once markPrice reaches this price, this position will be liquidated.
          * - **bankruptPrice**: Once markPrice reaches this price, this position will have no equity.
          */
         get: async (qs: BITMEX.PositionQuery = {}) =>
-            this.request<BITMEX.Position[]>('GET', '/position', { qs }, true),
+            this.request<any>('GET', `/position`, { qs }, true),
 
         /**
          * @Authorized
-         * Enable isolated margin or cross margin per-position.
+         * Enable isolated margin or cross margin per-position.Users can switch isolate margin per-position. This function allows switching margin isolation (aka fixed margin) on and off.
          */
         isolateMargin: async (form: BITMEX.PositionIsolatePost) =>
-            this.request<BITMEX.Position>('POST', '/position/isolate', { form }, true),
+            this.request<BITMEX.Position>('POST', `/position/isolate`, { form }, true),
 
         /**
          * @Authorized
-         * Update your risk limit.
+         * Update your risk limit.Risk Limits limit the size of positions you can trade at various margin levels. Larger positions require more margin. Please see the Risk Limit documentation for more details.
          */
         updateRiskLimit: async (form: BITMEX.PositionRiskLimitPost) =>
-            this.request<BITMEX.Position>('POST', '/position/riskLimit', { form }, true),
+            this.request<BITMEX.Position>('POST', `/position/riskLimit`, { form }, true),
 
         /**
          * @Authorized
-         * Transfer equity in or out of a position.
+         * Transfer equity in or out of a position.When margin is isolated on a position, use this function to add or remove margin from the position. Note that you cannot remove margin below the initial margin threshold.
          */
         transferIsolatedMargin: async (form: BITMEX.PositionTransferMarginPost) =>
-            this.request<BITMEX.Position>('POST', '/position/transferMargin', { form }, true),
+            this.request<BITMEX.Position>('POST', `/position/transferMargin`, { form }, true),
 
         /**
          * @Authorized
-         * Choose leverage for a position.
+         * Choose leverage for a position.Users can choose an isolated leverage. This will automatically enable isolated margin.
          */
         updateLeverage: async (form: BITMEX.PositionLeveragePost) =>
-            this.request<BITMEX.Position>('POST', '/position/leverage', { form }, true),
+            this.request<BITMEX.Position>('POST', `/position/leverage`, { form }, true),
+
+        /**
+         * @Authorized
+         * Choose leverage for a cross position.Users can choose an isolated leverage. This will automatically enable isolated margin.
+         */
+        updateCrossLeverage: async (form: BITMEX.PositionCrossLeveragePost) =>
+            this.request<BITMEX.Position>('POST', `/position/crossLeverage`, { form }, true),
+    };
+
+    public Quote = {
+
+        /**
+         * Get Quotes.
+         */
+        get: async (qs: BITMEX.QuoteQuery = {}) =>
+            this.request<any>('GET', `/quote`, { qs }),
+
+        /**
+         * Get previous quotes in time buckets.Timestamps returned by our bucketed endpoints are the **end** of the period, indicating when the bucket was written to disk. Some other common systems use the timestamp as the beginning of the period. Please be aware of this when using this endpoint.
+         */
+        getBucketed: async (qs: BITMEX.QuoteBucketedQuery = {}) =>
+            this.request<any>('GET', `/quote/bucketed`, { qs }),
     };
 
     public Schema = {
@@ -440,13 +513,13 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get model schemata for data objects returned by this API.
          */
         get: async (qs: BITMEX.SchemaQuery = {}) =>
-            this.request<any>('GET', '/schema', { qs }),
+            this.request<any>('GET', `/schema`, { qs }),
 
         /**
          * Returns help text & subject list for websocket usage.
          */
         websocketHelp: async () =>
-            this.request<any>('GET', '/schema/websocketHelp', {}),
+            this.request<any>('GET', `/schema/websocketHelp`, {}),
     };
 
     public Settlement = {
@@ -455,7 +528,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get settlement history.
          */
         get: async (qs: BITMEX.SettlementQuery = {}) =>
-            this.request<BITMEX.Settlement[]>('GET', '/settlement', { qs }),
+            this.request<any>('GET', `/settlement`, { qs }),
     };
 
     public Stats = {
@@ -464,19 +537,19 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get exchange-wide and per-series turnover and volume statistics.
          */
         get: async () =>
-            this.request<BITMEX.Stats[]>('GET', '/stats', {}),
+            this.request<any>('GET', `/stats`, {}),
 
         /**
          * Get historical exchange-wide and per-series turnover and volume statistics.
          */
         history: async () =>
-            this.request<BITMEX.StatsHistory[]>('GET', '/stats/history', {}),
+            this.request<any>('GET', `/stats/history`, {}),
 
         /**
          * Get a summary of exchange statistics in USD.
          */
         historyUSD: async () =>
-            this.request<BITMEX.StatsUSD[]>('GET', '/stats/historyUSD', {}),
+            this.request<any>('GET', `/stats/historyUSD`, {}),
     };
 
     public Trade = {
@@ -487,7 +560,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * See [the FIX Spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_AE_6569.html) for explanations of these fields.
          */
         get: async (qs: BITMEX.TradeQuery = {}) =>
-            this.request<BITMEX.Trade[]>('GET', '/trade', { qs }),
+            this.request<any>('GET', `/trade`, { qs }),
 
         /**
          * Get previous trades in time buckets.Timestamps returned by our bucketed endpoints are the **end** of the period, indicating when the bucket was written to disk. Some other common systems use the timestamp as the beginning of the period. Please be aware of this when using this endpoint.
@@ -495,7 +568,7 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Also note the `open` price is equal to the `close` price of the previous timeframe bucket.
          */
         getBucketed: async (qs: BITMEX.TradeBucketedQuery = {}) =>
-            this.request<BITMEX.TradeBin[]>('GET', '/trade/bucketed', { qs }),
+            this.request<any>('GET', `/trade/bucketed`, { qs }),
     };
 
     public User = {
@@ -504,128 +577,265 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * @Authorized
          * Get a deposit address.
          */
-        getDepositAddress: async (qs: BITMEX.UserDepositAddressQuery = {}) =>
-            this.request<string>('GET', '/user/depositAddress', { qs }, true),
+        getDepositAddress: async (qs: BITMEX.UserDepositAddressQuery) =>
+            this.request<string>('GET', `/user/depositAddress`, { qs }, true),
+
+        /**
+         * @Authorized
+         * Get a deposit address.
+         */
+        getDepositAddressInformation: async (qs: BITMEX.UserDepositAddressInformationQuery) =>
+            this.request<BITMEX.DepositAddress>('GET', `/user/depositAddressInformation`, { qs }, true),
 
         /**
          * @Authorized
          * Get your current wallet information.
          */
         getWallet: async (qs: BITMEX.UserWalletQuery = {}) =>
-            this.request<BITMEX.Wallet>('GET', '/user/wallet', { qs }, true),
+            this.request<BITMEX.Wallet>('GET', `/user/wallet`, { qs }, true),
 
         /**
          * @Authorized
          * Get a history of all of your wallet transactions (deposits, withdrawals, PNL).
          */
         getWalletHistory: async (qs: BITMEX.UserWalletHistoryQuery = {}) =>
-            this.request<BITMEX.Transaction[]>('GET', '/user/walletHistory', { qs }, true),
+            this.request<any>('GET', `/user/walletHistory`, { qs }, true),
 
         /**
          * @Authorized
-         * Get a summary of all of your wallet transactions (deposits, withdrawals, PNL).
+         * Get a summary of all of your wallet transactions (deposits, withdrawals, PNL).Provides an aggregated view of transactions, by transaction type, over a specific time period.
          */
         getWalletSummary: async (qs: BITMEX.UserWalletSummaryQuery = {}) =>
-            this.request<BITMEX.Transaction[]>('GET', '/user/walletSummary', { qs }, true),
+            this.request<any>('GET', `/user/walletSummary`, { qs }, true),
 
         /**
          * @Authorized
          * Get the execution history by day.
          */
         getExecutionHistory: async (qs: BITMEX.UserExecutionHistoryQuery = {}) =>
-            this.request<any>('GET', '/user/executionHistory', { qs }, true),
-
-        /**
-         * Get the minimum withdrawal fee for a currency.This is changed based on network conditions to ensure timely withdrawals. During network congestion, this may be high. The fee is returned in the same currency.
-         */
-        minWithdrawalFee: async (qs: BITMEX.UserMinWithdrawalFeeQuery = {}) =>
-            this.request<any>('GET', '/user/minWithdrawalFee', { qs }),
+            this.request<any>('GET', `/user/executionHistory`, { qs }, true),
 
         /**
          * @Authorized
-         * Request a withdrawal to an external wallet.This will send a confirmation email to the email address on record.
+         * Get the current user staking amount.
+         */
+        getStaking: async (qs: BITMEX.UserStakingQuery = {}) =>
+            this.request<any>('GET', `/user/staking`, { qs }, true),
+
+        /**
+         * @Authorized
+         * Get the current user unstaking requests
+         */
+        getUnstakingRequests: async (qs: BITMEX.UserUnstakingRequestsQuery) =>
+            this.request<any>('GET', `/user/unstakingRequests`, { qs }, true),
+
+        /**
+         * @Authorized
+         * Create unstaking request
+         */
+        createUnstakingRequests: async (form: BITMEX.UserUnstakingRequestsPost) =>
+            this.request<any>('POST', `/user/unstakingRequests`, { form }, true),
+
+        /**
+         * @Authorized
+         * Cancel unstaking request
+         */
+        deleteUnstakingRequests: async (form: BITMEX.UserUnstakingRequestsDelete) =>
+            this.request<any>('DELETE', `/user/unstakingRequests`, { form }, true),
+
+        /**
+         * @Authorized
+         * List staking instruments
+         */
+        getStakingInstruments: async (qs: BITMEX.UserStakingInstrumentsQuery = {}) =>
+            this.request<any>('GET', `/user/staking/instruments`, { qs }, true),
+
+        /**
+         * List staking tiers for a given currency
+         */
+        getStakingTiers: async (qs: BITMEX.UserStakingTiersQuery) =>
+            this.request<any>('GET', `/user/staking/tiers`, { qs }),
+
+        /**
+         * @Authorized
+         * Execute a transfer to a linked account.
+         */
+        walletTransfer: async (form: BITMEX.UserWalletTransferPost) =>
+            this.request<BITMEX.Transaction>('POST', `/user/walletTransfer`, { form }, true),
+
+        /**
+         * @Authorized
+         * Request a withdrawal to an external wallet or separate BitMEX account.### Email Confirmation
+         *
+         * In most cases, this endpoint will send a confirmation email to the email address on record. When withdrawing to a saved address (i.e. given `addressId` or a corresponding `address`) with `skipConfirm` configured, the withdrawal will be immediately confirmed.
+         *
+         * ### Two-Factor Authentication
+         *
+         * A valid 2FA code (`otpToken`) is required for all withdrawals unless the destination address is associated with either a saved address with `skip2FA` configured or a linked BitMEX account (e.g. a subaccount).
+         *
+         * ### Internal Transfers
+         *
+         * If a valid BitMEX deposit address is provided, the transaction will be made directly between BitMEX accounts. There will be no resulting on-chain transaction and no network fee will be charged.
+         *
+         * When given another account ID (`targetUserId`), the request will only succeed if the account is linked to the authenticated account.
+         *
+         * Note that `/api/v1/user/walletTransfer` may be a more suitable endpoint for transfers between linked accounts.
+         *
+         * ### Saved Address Verification
+         *
+         * Please note that when using saved addresses, `skip2FA` and `skipConfirm` require verification:
+         * - `skip2FA` can be verified by providing `otpToken` when creating the address. If `otpToken` is not provided, a 2FA code can be provided by visiting the link included in the email sent upon address creation.
+         *
+         * - `skipConfirm` can be verified by visiting the link included in the email sent upon address creation.
+         *
+         * ### Whitelist
+         *
+         * If the address book has the `whitelist` setting enabled, all withdrawal requests must be directed to either a saved addresses or a linked account. All other addresses will be rejected. Note that saved addresses must be __active__. A new saved address is active if it has been 2FA verified and a cooldown period has passed since its creation.
          */
         requestWithdrawal: async (form: BITMEX.UserRequestWithdrawalPost) =>
-            this.request<BITMEX.Transaction>('POST', '/user/requestWithdrawal', { form }, true),
+            this.request<BITMEX.Transaction>('POST', `/user/requestWithdrawal`, { form }, true),
+
+        /**
+         * @Authorized
+         * Cancel pending withdrawal
+         */
+        cancelPendingWithdrawal: async (form: BITMEX.UserWithdrawalDelete) =>
+            this.request<any>('DELETE', `/user/withdrawal`, { form }, true),
 
         /**
          * Cancel a withdrawal.
          */
         cancelWithdrawal: async (form: BITMEX.UserCancelWithdrawalPost) =>
-            this.request<BITMEX.Transaction>('POST', '/user/cancelWithdrawal', { form }),
+            this.request<BITMEX.Transaction>('POST', `/user/cancelWithdrawal`, { form }),
 
         /**
          * Confirm a withdrawal.
          */
         confirmWithdrawal: async (form: BITMEX.UserConfirmWithdrawalPost) =>
-            this.request<BITMEX.Transaction>('POST', '/user/confirmWithdrawal', { form }),
+            this.request<BITMEX.Transaction>('POST', `/user/confirmWithdrawal`, { form }),
 
         /**
          * Confirm your email address with a token.
          */
         confirm: async (form: BITMEX.UserConfirmEmailPost) =>
-            this.request<BITMEX.AccessToken>('POST', '/user/confirmEmail', { form }),
+            this.request<BITMEX.AccessToken>('POST', `/user/confirmEmail`, { form }),
 
         /**
          * @Authorized
          * Get your current affiliate/referral status.
          */
-        getAffiliateStatus: async () =>
-            this.request<BITMEX.Affiliate>('GET', '/user/affiliateStatus', {}, true),
+        getAffiliateStatus: async (qs: BITMEX.UserAffiliateStatusQuery = {}) =>
+            this.request<BITMEX.Affiliate>('GET', `/user/affiliateStatus`, { qs }, true),
 
         /**
          * Check if a referral code is valid.If the code is valid, responds with the referral code's discount (e.g. `0.1` for 10%). Otherwise, will return a 404 or 451 if invalid.
          */
         checkReferralCode: async (qs: BITMEX.UserCheckReferralCodeQuery = {}) =>
-            this.request<number>('GET', '/user/checkReferralCode', { qs }),
+            this.request<any>('GET', `/user/checkReferralCode`, { qs }),
 
         /**
          * @Authorized
          * Get 7 days worth of Quote Fill Ratio statistics.
          */
-        getQuoteFillRatio: async () =>
-            this.request<BITMEX.QuoteFillRatio>('GET', '/user/quoteFillRatio', {}, true),
+        getQuoteFillRatio: async (qs: BITMEX.UserQuoteFillRatioQuery = {}) =>
+            this.request<BITMEX.QuoteFillRatio>('GET', `/user/quoteFillRatio`, { qs }, true),
+
+        /**
+         * @Authorized
+         * Get Quote Value Ratio statistics over the last 3 days
+         */
+        getQuoteValueRatio: async (qs: BITMEX.UserQuoteValueRatioQuery = {}) =>
+            this.request<BITMEX.QuoteValueRatio>('GET', `/user/quoteValueRatio`, { qs }, true),
+
+        /**
+         * @Authorized
+         * Get your 30 days USD average trading volume
+         */
+        getTradingVolume: async () =>
+            this.request<any>('GET', `/user/tradingVolume`, {}, true),
+
+        /**
+         * @Authorized
+         * Creates a new sub-account.
+         */
+        createSubAccount: async (form: BITMEX.UserAddSubaccountPost) =>
+            this.request<any>('POST', `/user/addSubaccount`, { form }, true),
+
+        /**
+         * @Authorized
+         * Creates a new independant sub-account.
+         */
+        createIndependentSubaccount: async (form: BITMEX.UserCreateIndependentSubaccountPost) =>
+            this.request<any>('POST', `/user/createIndependentSubaccount`, { form }, true),
+
+        /**
+         * @Authorized
+         * Updates the sub-account name.
+         */
+        updateSubAccount: async (form: BITMEX.UserUpdateSubaccountPost) =>
+            this.request<any>('POST', `/user/updateSubaccount`, { form }, true),
+
+        /**
+         * @Authorized
+         * Get the list of accounts you can transfer funds between.
+         */
+        getWalletTransferAccounts: async () =>
+            this.request<any>('GET', `/user/getWalletTransferAccounts`, {}, true),
 
         /**
          * Log out of BitMEX.
          */
         logout: async () =>
-            this.request<any>('POST', '/user/logout', {}),
+            this.request<any>('POST', `/user/logout`, {}),
 
         /**
          * @Authorized
          * Save user preferences.
          */
         savePreferences: async (form: BITMEX.UserPreferencesPost) =>
-            this.request<BITMEX.User>('POST', '/user/preferences', { form }, true),
+            this.request<BITMEX.User>('POST', `/user/preferences`, { form }, true),
 
         /**
          * @Authorized
          * Get your user model.
          */
         get: async () =>
-            this.request<BITMEX.User>('GET', '/user', {}, true),
+            this.request<BITMEX.User>('GET', `/user`, {}, true),
+
+        /**
+         * @Authorized
+         * This function allows switching margining mode between single-asset margining and multi-asset margining.
+         */
+        marginingMode: async (form: BITMEX.UserMarginingModePost = {}) =>
+            this.request<BITMEX.Account>('POST', `/user/marginingMode`, { form }, true),
 
         /**
          * @Authorized
          * Get your account's commission status.
          */
         getCommission: async () =>
-            this.request<BITMEX.UserCommissionsBySymbol>('GET', '/user/commission', {}, true),
+            this.request<BITMEX.UserCommissionsBySymbol>('GET', `/user/commission`, {}, true),
 
         /**
          * @Authorized
          * Get your account's margin status. Send a currency of "all" to receive an array of all supported currencies.
          */
         getMargin: async (qs: BITMEX.UserMarginQuery = {}) =>
-            this.request<BITMEX.Margin>('GET', '/user/margin', { qs }, true),
+            this.request<BITMEX.Margin>('GET', `/user/margin`, { qs }, true),
+
+        /**
+         * @Authorized
+         * Get your account's CSA status.
+         */
+        getCSA: async () =>
+            this.request<BITMEX.CollateralSupportAgreement>('GET', `/user/csa`, {}, true),
 
         /**
          * @Authorized
          * Register your communication token for mobile clients
          */
         communicationToken: async (form: BITMEX.UserCommunicationTokenPost) =>
-            this.request<BITMEX.CommunicationToken[]>('POST', '/user/communicationToken', { form }, true),
+            this.request<any>('POST', `/user/communicationToken`, { form }, true),
     };
 
     public UserEvent = {
@@ -635,6 +845,198 @@ export class BitmexAPI extends BitmexAbstractAPI {
          * Get your user events
          */
         get: async (qs: BITMEX.UserEventQuery = {}) =>
-            this.request<BITMEX.UserEvent[]>('GET', '/userEvent', { qs }, true),
+            this.request<any>('GET', `/userEvent`, { qs }, true),
+    };
+
+    public Wallet = {
+
+        /**
+         * Get Assets Config
+         */
+        getAssetsConfig: async () =>
+            this.request<any>('GET', `/wallet/assets`, {}),
+
+        /**
+         * Get Networks Config
+         */
+        getNetworksConfig: async () =>
+            this.request<any>('GET', `/wallet/networks`, {}),
+
+        /**
+         * Get Frontend Currency Config
+         */
+        getAssetHaircuts: async () =>
+            this.request<any>('GET', `/wallet/haircuts`, {}),
+    };
+
+    public Address = {
+
+        /**
+         * @Authorized
+         * Creates a new saved address.### Verification
+         *
+         * Please note that `skip2FA` and `skipConfirm` require verification:
+         * - `skip2FA` can be verified by providing `otpToken` in this request. If `otpToken` is not provided, a 2FA code can be entered by following the the link included in the email sent upon address creation.
+         *
+         * - `skipConfirm` can be verified by following the link included in the email sent upon address creation.
+         *
+         * Please note that the email will be valid for 30 minutes.
+         *
+         * ### Whitelist
+         *
+         * If the address book has the `whitelist` setting enabled, then creating a saved address will require both 2FA verification and the passage of cooldown period. 2FA can either be provided immediately (`otpToken`) or by following the link included in the email sent upon address creation.
+         */
+        new: async (form: BITMEX.AddressPost) =>
+            this.request<BITMEX.Address>('POST', `/address`, { form }, true),
+
+        /**
+         * @Authorized
+         * Get your addresses.
+         */
+        get: async () =>
+            this.request<any>('GET', `/address`, {}, true),
+    };
+
+    public AddressConfig = {
+
+        /**
+         * @Authorized
+         * Get your address book settings.
+         */
+        get: async () =>
+            this.request<BITMEX.AddressConfig>('GET', `/addressConfig`, {}, true),
+    };
+
+    public UserAffiliates = {
+
+        /**
+         * @Authorized
+         * Get user's affiliates to a given depth
+         */
+        get: async (qs: BITMEX.UserAffiliatesQuery = {}) =>
+            this.request<any>('GET', `/userAffiliates`, { qs }, true),
+    };
+
+    public Guild = {
+
+        /**
+         * @Authorized
+         * Creates a new guild
+         */
+        new: async (form: BITMEX.GuildPost) =>
+            this.request<BITMEX.Guild>('POST', `/guild`, { form }, true),
+
+        /**
+         * @Authorized
+         * Edit guild new guild
+         */
+        edit: async (form: BITMEX.GuildPut) =>
+            this.request<BITMEX.Guild>('PUT', `/guild`, { form }, true),
+
+        /**
+         * Get all guilds
+         */
+        get: async () =>
+            this.request<any>('GET', `/guild`, {}),
+
+        /**
+         * @Authorized
+         * Toggle share trades for your account, which controls whether your guild members can see your orders and positions in their UI
+         */
+        shareTrades: async (form: BITMEX.GuildShareTradesPost) =>
+            this.request<any>('POST', `/guild/shareTrades`, { form }, true),
+
+        /**
+         * @Authorized
+         * Leave guild or cancel guild join request
+         */
+        leave: async () =>
+            this.request<any>('POST', `/guild/leave`, {}, true),
+
+        /**
+         * @Authorized
+         * Kick member from guild
+         */
+        kick: async (form: BITMEX.GuildKickPost) =>
+            this.request<any>('POST', `/guild/kick`, { form }, true),
+
+        /**
+         * @Authorized
+         * Request to Join a private guild or join a public guild
+         */
+        join: async (form: BITMEX.GuildJoinPost) =>
+            this.request<any>('POST', `/guild/join`, { form }, true),
+
+        /**
+         * @Authorized
+         * Archive a guild
+         */
+        archive: async () =>
+            this.request<any>('POST', `/guild/archive`, {}, true),
+    };
+
+    public Porl = {
+
+        /**
+         * @Authorized
+         * Get your Proof of Reserves nonce and data.## Proof of Reserves Nonce
+         *
+         * This endpoint will return the nonce and associated data needed to validate BitMEX reserves data.
+         *
+         * <!-- TODO link to docs, GitHub, etc -->
+         */
+        getNonce: async () =>
+            this.request<BITMEX.Porl>('GET', `/porl/nonce`, {}, true),
+
+        /**
+         * Get Proof of Reserves historical snapshots
+         */
+        getSnapshots: async () =>
+            this.request<any>('GET', `/porl/snapshots`, {}),
+    };
+
+    public ReferralCode = {
+
+        /**
+         * @Authorized
+         * Create a new referral code
+         */
+        createReferralCode: async (body: BITMEX.ReferralCodePost) =>
+            this.request<any>('POST', `/referralCode`, { body }, true),
+
+        /**
+         * @Authorized
+         * Returns all referral codes for the logged-in user
+         */
+        getAllCodesForUser: async () =>
+            this.request<any>('GET', `/referralCode`, {}, true),
+
+        /**
+         * @Authorized
+         * Check if a referral code is valid
+         */
+        checkReferralCode: async (path: BITMEX.ReferralCodeCheckGet) =>
+            this.request<{ available: boolean; }>('GET', `/referralCode/check/${path.code}`, {}, true),
+
+        /**
+         * @Authorized
+         * Update an existing referral code
+         */
+        updateReferralCode: async (path: BITMEX.ReferralCodePut, body: BITMEX.ReferralCodePut) =>
+            this.request<any>('PUT', `/referralCode/${path.id}`, { body }, true),
+
+        /**
+         * @Authorized
+         * Delete a referral code
+         */
+        deleteReferralCode: async (path: BITMEX.ReferralCodeDelete) =>
+            this.request<boolean>('DELETE', `/referralCode/${path.id}`, {}, true),
+
+        /**
+         * @Authorized
+         * Get a referral code by ID
+         */
+        getReferralCode: async (path: BITMEX.ReferralCodeGet) =>
+            this.request<any>('GET', `/referralCode/${path.id}`, {}, true),
     };
 }
